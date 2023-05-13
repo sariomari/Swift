@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createDrawerNavigator, } from '@react-navigation/drawer';
 import { View } from 'react-native';
 import LoginScrn from '../screens/loginScreen';
+import DeliveryMap from '../screens/deliveryMain';
 
 const Drawer = createDrawerNavigator();
 
@@ -27,7 +28,7 @@ export default function CustomDrawer() {
                 initialRouteName=""
             >
                 <Drawer.Screen name="Drawer">
-                    {props => <LoginScrn {...props} />}
+                    {props => <DeliveryMap {...props} />}
                 </Drawer.Screen>
             </Drawer.Navigator>
 

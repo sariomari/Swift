@@ -17,9 +17,9 @@ export default function App() {
         screenOptions={{
           headerShown: false,
         }}
-        initialRouteName={'LoginScrn'}>
+        initialRouteName={'DeliveryMap'}>
         <Stack.Screen
-          name='LoginScrn'
+          name='DeliveryMap'
           component={CustomDrawer}>
         </Stack.Screen>
 
