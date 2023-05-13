@@ -1,11 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
 import { View, Text, Image } from "react-native";
+import * as Location from "expo-location";
+
+const requestLocationPermission = async () => {
+
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+    }
+
+}
+
+const getCurrentLocation = async () => {
+    const { coords } = await Location.getCurrentPositionAsync();
+    const { latitude, longitude } = coords;
+    // Do something with latitude and longitude
+};
 
 export default function DeliveryMap() {
-    const latitude = 32.0852997;
-    const longitude = 34.7818064;
-    let driverName = "Sari Omari";
+
+    const [location, setLocation] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
+
+    useEffect(() => {
+        const getPermissions = async () => {
+
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
+        };
+        getPermissions();
+    }, []);
+
+    let text = 'Waiting..';
+    let latitude = 32.0852997;
+    let longitude = 34.7818064;
+    if (errorMsg) {
+        text = errorMsg;
+    } else if (location) {
+        text = JSON.stringify(location);
+        latitude = location.coords.latitude;
+        longitude = location.coords.longitude;
+    }
     let deliveringArea = "Tel Aviv";
     let demand = "Busy";
     return (
@@ -22,9 +65,9 @@ export default function DeliveryMap() {
                 <Marker
                     coordinate={{ latitude: latitude, longitude: longitude }}
                     title="Your Location"
-                ><Image source={require('./../assets/driverlogo.png')} style={{height: 35, width: 35 }} />
+                ><Image source={require('./../assets/driverlogo.png')} style={{ height: 35, width: 35 }} />
                 </Marker>
-                
+
             </MapView>
 
             <View style={styles.bottomBar}>
