@@ -13,7 +13,7 @@ export default function LoginScrn() {
         <View style={styles.inputView}>
           <TextInput
             style={styles.TextInput}
-            placeholder="Email"
+            placeholder="Email123"
             placeholderTextColor="#003f5c"
             onChangeText={(email) => setEmail(email)}
           />
