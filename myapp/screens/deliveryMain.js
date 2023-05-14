@@ -1,25 +1,10 @@
 import React, { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, SafeAreaView } from "react-native";
 import * as Location from "expo-location";
 
-const requestLocationPermission = async () => {
 
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-    }
-
-}
-
-const getCurrentLocation = async () => {
-    const { coords } = await Location.getCurrentPositionAsync();
-    const { latitude, longitude } = coords;
-    // Do something with latitude and longitude
-};
-
-export default function DeliveryMap() {
+export default function DeliveryMap({ navigator }) {
 
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
@@ -52,23 +37,24 @@ export default function DeliveryMap() {
     let deliveringArea = "Tel Aviv";
     let demand = "Busy";
     return (
-        <View style={{ flex: 1 }}>
-            <MapView
-                style={{ flex: 1 }}
-                initialRegion={{
-                    latitude: latitude,
-                    longitude: longitude,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }}
-            >
-                <Marker
-                    coordinate={{ latitude: latitude, longitude: longitude }}
-                    title="Your Location"
-                ><Image source={require('./../assets/driverlogo.png')} style={{ height: 35, width: 35 }} />
-                </Marker>
 
-            </MapView>
+        <View style={{ flex: 1 }}>
+                <MapView
+                    style={{ flex: 1 }}
+                    initialRegion={{
+                        latitude: latitude,
+                        longitude: longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
+                >
+                    <Marker
+                        coordinate={{ latitude: latitude, longitude: longitude }}
+                        title="Your Location"
+                    ><Image source={require('./../assets/driverlogo.png')} style={{ height: 35, width: 35 }} />
+                    </Marker>
+
+                </MapView>
 
             <View style={styles.bottomBar}>
                 <View style={styles.infoContainer}>
@@ -83,6 +69,7 @@ export default function DeliveryMap() {
 
             </View>
         </View>
+
     );
 };
 

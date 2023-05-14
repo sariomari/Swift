@@ -17,10 +17,22 @@ export default function App() {
         screenOptions={{
           headerShown: false,
         }}
-        initialRouteName={'DeliveryMap'}>
+        initialRouteName={'LoginScrn'}>
         <Stack.Screen
-          name='DeliveryMap'
+          name='Login Screen'
+          component={LoginScrn}>
+        </Stack.Screen>
+        <Stack.Screen
+          name='Drawer'
           component={CustomDrawer}>
+        </Stack.Screen>
+        <Stack.Screen
+          name='Home'
+          component={DeliveryMap}>
+        </Stack.Screen>
+        <Stack.Screen
+          name='SignUp'
+          component={SignUpScrn}>
         </Stack.Screen>
 
       </Stack.Navigator>

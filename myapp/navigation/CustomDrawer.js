@@ -3,6 +3,7 @@ import { createDrawerNavigator, } from '@react-navigation/drawer';
 import { View } from 'react-native';
 import LoginScrn from '../screens/loginScreen';
 import DeliveryMap from '../screens/deliveryMain';
+import SignUpScrn from '../screens/signUpScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -10,7 +11,7 @@ export default function CustomDrawer() {
     return (
         <View
             style={{
-                flex: 1, LoginScrn,
+                flex: 1,
                 backgroundColor: "#fff",
             }}>
             <Drawer.Navigator
@@ -25,10 +26,10 @@ export default function CustomDrawer() {
                 sceneContainerStyle={{
                     backgroundColor: 'transparent',
                 }}
-                initialRouteName=""
+                initialRouteName="Home"
             >
-                <Drawer.Screen name="Status: Online">
-                    {props => <DeliveryMap {...props} />}
+                <Drawer.Screen name="Home" component={DeliveryMap}>
+
                 </Drawer.Screen>
             </Drawer.Navigator>
 
