@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
+
 import {
     View,
     Text,
@@ -17,10 +19,10 @@ import  {Horizontalcards}from "../components"
 import { useNavigation } from '@react-navigation/native';
 import { Header } from '../components';
 import { TextInput } from 'react-native-gesture-handler';
+import { AntDesign } from '@expo/vector-icons';
 import * as Font from 'expo-font';
 
-import { AntDesign } from '@expo/vector-icons';
-const Cart = ({ navigation, route }) => {
+const OrderDetails = ({ navigation, route }) => {
   const [fontLoaded, setFontLoaded] = useState(false);
   useEffect(() => {
     const loadFont = async () => {
@@ -31,33 +33,33 @@ const Cart = ({ navigation, route }) => {
         Rockstyle: require('../assets/fonts/Starlight.ttf'),
         Formalf: require('../assets/fonts/SFCartoonistHand.ttf'),
         FormalfB: require('../assets/fonts/SFCartoonistHandB.ttf'),
-
-
-
       });
       setFontLoaded(true);
     };
     loadFont();
   }, []);
-  const { items } = route.params;
-  const [itemsList, setitemsList] = React.useState(items);
   
+  const { orderId, itemsList: initialItemsList } = route.params;
+  const [itemsList, setItemsList] = useState(initialItemsList);
   React.useEffect(() => {
-    setitemsList(items);
-  }, [items]);
+    setItemsList(itemsList);
+  }, [itemsList]);
  
   const screenWidth = Dimensions.get('window').width;
 
    navigation = useNavigation();
-  console.log('Items:', items);
+  console.log('Items:', itemsList);
   
   const numColumns = 1;
   const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      backgroundColor: '#FFFFFF', // Set the desired background color here
-      
-    },
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 30,
+        backgroundColor: '#FFFFFF', // Set the background color to match the first snippet
+  
+      },
     
     itemContainer: {
       flex: 1,
@@ -87,14 +89,15 @@ const Cart = ({ navigation, route }) => {
         flex: 1,
       },
       itemPrice:{
-        fontSize: 19,
+        fontSize: 22,
         fontWeight: 'bold',
         marginRight:24,
-       
+        fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+
         
       },
       itemText: {
-        fontSize: 19,
+        fontSize: 18,
         fontWeight: 'bold',
         flex:1,
         fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
@@ -114,11 +117,28 @@ const Cart = ({ navigation, route }) => {
         alignItems: 'center',
         justifyContent: 'center',
       },
+      text: {
+        fontFamily: fontLoaded ? 'Formalf' : 'Arial',
+        fontWeight: 'bold',
+        fontSize: 34,
+        textAlign: 'center',
+        color: '#000000',
+        marginBottom: 20,
+      },
+      logoContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
       logoImage: {
         width: 150,
-        height:60,
-        alignItems:'center',
+        height: 60,
+        alignItems: 'center',
       },
+      logoButtonContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+      },
+     
       cartButton: {
         position: 'absolute',
         top: 5,
@@ -139,66 +159,10 @@ const Cart = ({ navigation, route }) => {
 
 
 
-  function renderSearch(){
-    return (
-        <View >
-      {renderLogo()}
-        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 }}>
-        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginRight: 2 }}>
-          <Image source={require('../assets/menu.png')} style={{ width: 24, height: 24,tintColor:"#000000" }} />
-        </TouchableOpacity>
-        <View 
-            style={{
-                flexDirection:'row',
-                height:50,
-                alignItems:'center',
-                marginHorizontal:24,
-                marginVertical:8,
-                paddingHorizontal:12,
-                borderRadius:12,
-                flex:1,
-                backgroundColor:'#ebebeb'
-            }}
-        >
-            <Image source={require("./../assets/search.png")}
-               style={{ width:20,height:20,tintColor:"#000000"
-               }}/>
-            <TextInput
-            style={{
-                flex:1,
-                marginLeft:12,  fontFamily: fontLoaded ? 'SweetRomane' : 'Arial', fontSize:18, lineHeight: 22
 
-
-
-            }} placeholder='   Find a product'/>
-
-</View>
-        </View>
-        </View>
-
-    )
-}
 const [cartItems, setCartItems] = React.useState([]);
 
-const handleCartPress = React.useCallback(
-  (item) => {
-    // Check if the item is already in the cart
-    const index = cartItems.findIndex((cartItem) => cartItem.id === item.id);
 
-    if (index === -1) {
-      // Item is not in the cart, add it
-      const updatedCart = [...cartItems, item];
-      setCartItems(updatedCart);
-    } else {
-      // Item is already in the cart, remove it
-      const updatedCart = cartItems.filter(
-        (cartItem) => cartItem.id !== item.id
-      );
-      setCartItems(updatedCart);
-    }
-  },
-  [cartItems]
-);
   
 const MyFlatList = () => {
   
@@ -210,60 +174,66 @@ const MyFlatList = () => {
   
 
 const renderItem = ({ item }) => (
-  <View style={[styles.itemContainer, { width: screenWidth - 40 }]}>
-  <View style={styles.itemContent}>
-    <View style={{ flexDirection: 'row', alignItems: 'center',paddingRight:60 }}>
-      <Image source={item.image} style={styles.itemImage} resizeMode="contain"  />
-      <Image source={item.image} style={styles.itemImage} resizeMode="contain"  />
-      </View>
-      <View style={{ flexDirection: 'row', alignItems: 'right', paddingHorizontal: 12 }}>
-      <TouchableOpacity style={styles.cartButton} onPress={() => handleCartPress(item)}>
-        {cartItems.some((cartItem) => cartItem.id === item.id) ? (
-          <AntDesign name="shoppingcart" style={styles.cartIcon} />
-        ) : (
-            <AntDesign name="check" style={styles.cartIcon} />
-          
-        )}
-      </TouchableOpacity>
-      </View>
-      </View>
+  
       <View style={[styles.textContainer ]}>
-        <Text style={styles.itemText } >{item.name}</Text>
+        <Text style={styles.itemText } >{item.items.name}</Text>
         
         <Text style={styles.itemPrice}>{item.price}</Text>
       </View>
     
-    </View>
 );
 return (
-  <FlatList
-  data={itemsList}
-  renderItem={renderItem}
-  numColumns={numColumns}
-  
-/>
+    <FlatList
+      data={itemsList}
+      renderItem={renderItem}
+      numColumns={numColumns}
+    />
 )
 
 }
 
 const FlatListRef =React.useRef()
 
-  function renderLogo() {
+function renderSearch() {
     return (
-      <View style={styles.logoContainer}>
-        <Image source={require('../assets/Swiftlogo.jpg')} style={styles.logoImage} resizeMode="contain" />
+      <View style={styles.logoButtonContainer}>
+         <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ position:'absolute' , right:232 }}>
+            <Image
+              source={require('../assets/menu.png')}
+              style={{ width: 24, height: 24, tintColor: '#000000' }}
+            />
+          </TouchableOpacity>
+          <View style={styles.logoContainer}>
+        <Image
+          source={require('../assets/Swiftlogo.jpg')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </View>
+         
+        </View>
     );
   }
 
 
+
   return (
-    <View style={{  flex: 1,
-      backgroundColor: '#FFFFFF', // Set the desired background color here
-      paddingTop:30
-    }}>
+    <View  style={styles.container}>
      
       {renderSearch()}
+      <View>
+       
+        {fontLoaded && (
+  <Text style={styles.text}>
+    {'\n'}
+    {'\n'}
+    Order Number : {orderId}
+  </Text>
+)}
+          
+         
+        
+        </View>
       
       <View style={{ flex: 1 }}>
       <MyFlatList data={itemsList}
@@ -278,5 +248,5 @@ const FlatListRef =React.useRef()
 
 
 
-  export default Cart;
+  export default OrderDetails;
 
