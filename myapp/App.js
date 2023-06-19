@@ -10,7 +10,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
+export default function RootNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator

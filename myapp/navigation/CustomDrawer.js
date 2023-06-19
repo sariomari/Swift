@@ -1,9 +1,7 @@
 import React, { useState, } from 'react';
 import { createDrawerNavigator, } from '@react-navigation/drawer';
 import { View } from 'react-native';
-import LoginScrn from '../screens/loginScreen';
 import DeliveryMap from '../screens/deliveryMain';
-import SignUpScrn from '../screens/signUpScreen';
 
 const Drawer = createDrawerNavigator();
 
