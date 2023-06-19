@@ -18,13 +18,28 @@ import { useNavigation } from '@react-navigation/native';
 import { Header } from '../components';
 import { TextInput } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
+import * as Font from 'expo-font';
 const screenWidth = Dimensions.get('window').width;
 const MainLayout = ({drawerAnimationStyle,navigation,selectedTab,setSelectedTab}) => {
+  const [fontLoaded, setFontLoaded] = React.useState(false);
+  React.useEffect(() => {
+      const loadFont = async () => {
+        await Font.loadAsync({
+          CoolFont: require('../assets/fonts/SweetRomance.ttf'),
+          CoolFontone: require('../assets/fonts/PoppinsRegular.ttf'),
+          Formalf: require('../assets/fonts/SFCartoonistHand.ttf'),
+          FormalfB: require('../assets/fonts/SFCartoonistHandB.ttf'),
+        });
+        setFontLoaded(true);
+      };
+  
+      loadFont();
+    }, []);
   
     function renderLogo() {
         return (
           <View style={styles.logoContainer }>
-            <Image source={require('../assets/logotran.png')} style={styles.logoImage }resizeMode="contain" />
+            <Image source={require('../assets/Swiftlogo.jpg')} style={styles.logoImage }resizeMode="contain" />
           </View>
         );
       }
@@ -62,7 +77,7 @@ const styles = StyleSheet.create({
       paddingVertical: 16,
       marginVertical: 10,
       marginHorizontal: 8,
-      backgroundColor: '#ebebeb',
+      backgroundColor: '#DFE9F5',
       borderRadius: 8,
       height:188,width:150,
       marginBottom:10
@@ -84,6 +99,8 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginRight: 4,
         flex: 1,
+        color: '#000000',
+        fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
       },
       itemContent: {
         flexDirection: 'row',
@@ -101,7 +118,7 @@ const styles = StyleSheet.create({
       logoImage: {
         width: 150,
         height:60,
-        tintColor: '#000000',alignItems:'center',
+       alignItems:'center',
       },
 
   });
@@ -176,20 +193,21 @@ const styles = StyleSheet.create({
                 paddingHorizontal:12,
                 borderRadius:12,
                 flex:1,
-                backgroundColor:'#ebebeb'
-            }}
+                backgroundColor: '#F8F8F8',
+                          }}
         >
             <Image source={require("./../assets/search.png")}
-               style={{ width:20,height:20,tintColor:"#000000"
+               style={{ width:20,height:20,tintColor: '#000000'
                }}/>
             <TextInput
             style={{
                 flex:1,
-                marginLeft:12, fontFamily: "Poppins-Regular", fontSize:18, lineHeight: 22
+                marginLeft:12,
+                fontFamily: fontLoaded ? 'CoolFont' : 'Arial', fontSize:18, lineHeight: 22,color:'#000000'
 
 
 
-            }} placeholder='Find a store'/>
+            }} placeholder='    Find a store'/>
 
 </View>
         </View>
@@ -204,7 +222,7 @@ const styles = StyleSheet.create({
     return (
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <Header
-        style={{ backgroundColor: '#000000' }}
+        style={{ backgroundColor: '#FF4F4F' }}
         statusBarProps={{ barStyle: 'dark-content' }}
         centerComponent={{ text: 'Home', style: { color: '#000000', fontSize: 20 } }}
       />

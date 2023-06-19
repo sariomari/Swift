@@ -10,6 +10,10 @@ import thunk from 'redux-thunk';
 import StorePage  from './screens/StorePage';
 import rootReducer from './stores/rootReducer';
 import MainLayout from './screens/MainLayout';
+import Cart from './screens/cart';
+import HelpCenter from './screens/HelpCenter';
+import Orders from './screens/orders';
+import OrderDetails from './screens/OrderDetails';
 const Stack = createNativeStackNavigator();
 const store = createStore(
   rootReducer,
@@ -30,7 +34,17 @@ export default function App() {
       </Stack.Screen>
       <Stack.Screen name='MainLayout' component={MainLayout} />
       <Stack.Screen name='StorePage' component={StorePage} />
-
+      <Stack.Screen name='Cart' component={Cart} />
+      <Stack.Screen
+          name="Orders"
+          component={Orders}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="OrderDetails"
+          component={OrderDetails}
+          options={{ headerShown: false }}
+        />
     </Stack.Navigator>
     
     </NavigationContainer>
