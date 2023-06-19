@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import MapView, { Marker, AnimatedRegion } from "react-native-maps";
-import { View, SafeAreaView, StyleSheet, Dimensions, Image } from "react-native";
+import { View, SafeAreaView, StyleSheet, Dimensions, Image, Text } from "react-native";
 import { requestForegroundPermissionsAsync, watchPositionAsync } from 'expo-location';
 import * as Location from 'expo-location';
 import PubNub from "pubnub";
@@ -14,7 +14,6 @@ const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 export default class DeliveryMap extends React.Component {
-    marker = React.createRef();
     constructor(props) {
         super(props);
 
@@ -39,9 +38,9 @@ export default class DeliveryMap extends React.Component {
 
     componentDidMount() {
         this.watchLocation();
-      }
+    }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevState) {
         if (this.props.latitude !== prevState.latitude) {
             this.pubnub.publish({
                 message: {
@@ -55,54 +54,47 @@ export default class DeliveryMap extends React.Component {
 
     componentWillUnmount() {
         this.stopWatchingLocation();
-      }
+    }
 
     watchLocation = async () => {
         const { coordinate } = this.state;
         const { status } = await requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-          console.log('Permission denied for accessing location');
-          // Handle the case where the user denied permission
-          return;
+            console.log('Permission denied for accessing location');
+            // Handle the case where the user denied permission
+            return;
         }
-    
+
         this.watchLocationTask = watchPositionAsync(
-          {
-            distanceInterval: 10, // Set the desired distance interval for updates
-            accuracy: Location.Accuracy.BestForNavigation, // Set the desired accuracy level
-          },
-          (location) => {
-            const { latitude, longitude } = location.coords;
-    
-            const newCoordinate = {
-              latitude,
-              longitude
-            };
-    
-            if (Platform.OS === "android") {
-              if (this.marker) {
-                this.marker._component.animateMarkerToCoordinate(
-                  newCoordinate,
-                  500 // 500 is the duration to animate the marker
-                );
-              }
-            } else {
-              coordinate.timing(newCoordinate).start();
+            {
+                distanceInterval: 10, // Set the desired distance interval for updates
+                accuracy: Location.Accuracy.BestForNavigation, // Set the desired accuracy level
+            },
+            (location) => {
+                const { latitude, longitude } = location.coords;
+
+                const newCoordinate = {
+                    latitude,
+                    longitude
+                };
+
+                if (Platform.OS === "ios") {
+                    coordinate.timing(newCoordinate).start();
+                } else {}
+
+                this.setState({
+                    latitude,
+                    longitude
+                });
             }
-    
-            this.setState({
-              latitude,
-              longitude
-            });
-          }
         );
-      };
+    };
 
     stopWatchingLocation = () => {
-    if (this.watchLocationTask) {
-        this.watchLocationTask.remove();
-        this.watchLocationTask = null;
-    }
+        if (this.watchLocationTask) {
+            this.watchLocationTask.remove();
+            this.watchLocationTask = null;
+        }
     };
 
     getMapRegion = () => ({
@@ -113,8 +105,11 @@ export default class DeliveryMap extends React.Component {
     });
 
     render() {
+        let deliveringArea = "Tel Aviv";
+        let demand = "Busy";
         return (
             <SafeAreaView style={{ flex: 1 }}>
+
                 <View style={styles.container}>
                     <MapView
                         style={styles.map}
@@ -124,14 +119,30 @@ export default class DeliveryMap extends React.Component {
                         region={this.getMapRegion()}
                     >
                         <Marker.Animated
-                            ref={this.marker}
+                            ref={marker => {
+                                this.marker = marker;
+                            }}
                             coordinate={this.state.coordinate}
                         >
                             <Image source={require('./../assets/driverlogo.png')} style={{ height: 35, width: 35 }} />
                         </Marker.Animated>
                     </MapView>
                 </View>
+
+                <View style={styles.bottomBar}>
+                    <View style={styles.infoContainer}>
+                        <Text style={styles.infoText}>Delivery Area</Text>
+                    </View>
+                    <View style={styles.infoContainer}>
+                        <Text style={styles.deliveringAreaText}>{deliveringArea}</Text>
+                    </View>
+                    <View style={styles.infoContainer}>
+                        <Text style={{ color: "gray", fontSize: 14, marginBottom: 4, }}>Demand: {demand}</Text>
+                    </View>
+                </View>
+
             </SafeAreaView>
+
         );
     }
 }
@@ -139,15 +150,15 @@ export default class DeliveryMap extends React.Component {
 const requestLocationPermission = async () => {
     const { status } = await requestForegroundPermissionsAsync();
     if (status !== 'granted') {
-      console.log('Permission denied for accessing location');
-      // Handle the case where the user denied permission
+        console.log('Permission denied for accessing location');
+        // Handle the case where the user denied permission
     } else {
-      console.log('Permission granted for accessing location');
-      // Proceed with accessing the user's location
+        console.log('Permission granted for accessing location');
+        // Proceed with accessing the user's location
     }
-  };
-  
-  
+};
+
+
 
 // export default function DeliveryMap({ navigator }) {
 
