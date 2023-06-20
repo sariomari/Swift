@@ -10,6 +10,8 @@ class Customer(models.Model):
     email = models.EmailField(default='')
     latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+    #favorite_stores = models.ManyToManyField('Store', related_name='favorited_by')
+
 
 class Store(models.Model):
     store_id = models.AutoField(primary_key=True)
@@ -24,8 +26,8 @@ class Item(models.Model):
     description = models.CharField(max_length=100, default='')
     price = models.IntegerField(default=0)
     quantity = models.IntegerField(default=0)
-    picture1 = models.ImageField(upload_to='item_pictures', null=True)
-    picture2 = models.ImageField(upload_to='item_pictures', null=True)
+    picture1 =models.CharField(max_length=500, default='')
+    picture2 = models.CharField(max_length=500, default='')
     store = models.ForeignKey(Store, on_delete=models.CASCADE, default=1)
 
 class Order(models.Model):

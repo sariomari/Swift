@@ -16,10 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+#from django.conf.urls import url,include
+from django.urls import include, re_path
+
 #from playground.views import send_order, update_driver_zone
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    re_path(r'^', include('playground.urls')),
+    #url(r'^',include('playground.urls'))
     #path('api/send-order/', send_order, name='send_order'),
     #path('api/update_driver_zone', update_driver_zone, name='update_driver_zone')
 ]

@@ -1,6 +1,99 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-"""
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.parsers import JSONParser 
+from django.http.response import JsonResponse
+
+from playground.models import Customer,Store,Item,Order,Driver
+from playground.serializers import CustomerSerializer ,StoreSerializer,ItemSerializer
+from django.core.files.storage import default_storage
+ 
+@csrf_exempt 
+def CustomerApi(request,id=0):
+    if request.method=='GET':
+        customers = Customer.objects.all()
+        customer_serializer=CustomerSerializer(customers,many=True)
+        return JsonResponse(customer_serializer.data,safe=False)
+    elif request.method=='POST':
+        customer_data=JSONParser().parse(request)
+        customer_serializer=CustomerSerializer(data=customer_data)
+        if customer_serializer.is_valid():
+            customer_serializer.save()
+            return JsonResponse("Added Successfully",safe=False)
+        return JsonResponse("Failed To Add!",safe=False)  
+    elif request.method=='PUT':
+        customer_data=JSONParser().parse(request)
+        customer=Customer.objects.get(customer_id=customer_data['customer_id'] )
+        customer_serializer=CustomerSerializer(customer,data=customer_data)
+        if customer_serializer.is_valid():
+            customer_serializer.save()
+            return JsonResponse("Update Successfully",safe=False)
+        return JsonResponse("Failed To Update!",safe=False)
+    elif request.method=='DELETE':
+        customer=Customer.objects.get(customer_id=id )
+        customer.delete()
+        return JsonResponse("Deleted Successfully",safe=False)
+
+@csrf_exempt 
+def StoreApi(request,id=0):
+    if request.method=='GET':
+        stores = Store.objects.all()
+        store_serializer=StoreSerializer(stores,many=True)
+        return JsonResponse(store_serializer.data,safe=False)
+    elif request.method=='POST':
+        store_data=JSONParser().parse(request)
+        store_serializer=StoreSerializer(data=store_data)
+        if store_serializer.is_valid():
+            store_serializer.save()
+            return JsonResponse("Added Successfully",safe=False)
+        return JsonResponse("Failed To Add!",safe=False)  
+    elif request.method=='PUT':
+        store_data=JSONParser().parse(request)
+        store=Store.objects.get(store_id=store_data['store_id'] )
+        store_serializer=StoreSerializer(store,data=store_data)
+        if store_serializer.is_valid():
+            store_serializer.save()
+            return JsonResponse("Update Successfully",safe=False)
+        return JsonResponse("Failed To Update!",safe=False)
+    elif request.method=='DELETE':
+        store=Store.objects.get(store_id=id )
+        store.delete()
+        return JsonResponse("Deleted Successfully",safe=False)
+
+@csrf_exempt 
+def ItemApi(request,id=0):
+    if request.method=='GET':
+        items = Item.objects.all()
+        item_serializer=ItemSerializer(items,many=True)
+        return JsonResponse(item_serializer.data,safe=False)
+    elif request.method=='POST':
+        item_data=JSONParser().parse(request)
+        item_serializer=ItemSerializer(data=item_data)
+        if item_serializer.is_valid():
+            item_serializer.save()
+            return JsonResponse("Added Successfully",safe=False)
+        return JsonResponse("Failed To Add!",safe=False)  
+    elif request.method=='PUT':
+        item_data=JSONParser().parse(request)
+        item=Item.objects.get(item_id=item_data['item_id'] )
+        item_serializer=ItemSerializer(item,data=item_data)
+        if item_serializer.is_valid():
+            item_serializer.save()
+            return JsonResponse("Update Successfully",safe=False)
+        return JsonResponse("Failed To Update!",safe=False)
+    elif request.method=='DELETE':
+        item=Item.objects.get(item_id=id )
+        item.delete()
+        return JsonResponse("Deleted Successfully",safe=False)
+
+@csrf_exempt 
+def SaveFile(request):
+    file=request.FILES['file']
+    file_name=default_storage.save(file.name,file)
+    return JsonResponse(file_name,safe=False)
+
+""" 
+
 from orders import authorizeOrder, sendOrderNow, getZone
 from shared_data import TLV_DRIVERS
 
@@ -47,3 +140,4 @@ def send_order(request):
 
     # Return a JSON response
     return JsonResponse({'message': 'Order received successfully'})
+"""
