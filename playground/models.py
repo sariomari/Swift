@@ -1,42 +1,45 @@
 from django.db import models
 
-class User:
-    def __init__(self, user_id, first_name, last_name, location):
-        self.user_id = user_id
-        self.first_name = first_name
-        self.last_name = last_name
-        self.location = location
-        
-    def get_location(self):
-        return self.location
-    
-    def update_location(self, new_location):
-        # insert location to DB
-        # ...
-        self.location = new_location
-    
-class Driver:
-    def __init__(self, driver_id, first_name, last_name, delivery_area, delivery_zone, location):
-        self.user_id = driver_id
-        self.first_name = first_name
-        self.last_name = last_name
-        self.location = location
-        self.delivery_area = delivery_area
-        self.delivery_zone = delivery_zone
-    
-    def get_location(self):
-        return self.location
-    
-    def get_delivery_zone(self):
-        return self.delivery_zone
-    
-    def update_delivery_zone(self, new_zone):
-        """ This method updates the delivery zone to new_zone
-            be careful that another function translates from location to zone
-        """
-        self.delivery_zone = new_zone
-        
-    def update_location(self, new_location):
-        # insert location to DB
-        # ...
-        self.location = new_location
+class Customer(models.Model):
+    customer_id = models.AutoField(primary_key=True)
+    first_name = models.CharField(max_length=100, default='')
+    last_name = models.CharField(max_length=100, default='')
+    username = models.CharField(max_length=100, default='')
+    password = models.CharField(max_length=100, default='')
+    phone_number = models.CharField(max_length=20, default='')
+    email = models.EmailField(default='')
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+
+class Store(models.Model):
+    store_id = models.AutoField(primary_key=True)
+    store_name = models.CharField(max_length=100, default='')
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+    Area = models.CharField(max_length=100, default='')
+    Zone = models.CharField(max_length=100, default='')
+
+class Item(models.Model):
+    item_id = models.AutoField(primary_key=True)
+    description = models.CharField(max_length=100, default='')
+    price = models.IntegerField(default=0)
+    quantity = models.IntegerField(default=0)
+    picture1 = models.ImageField(upload_to='item_pictures', null=True)
+    picture2 = models.ImageField(upload_to='item_pictures', null=True)
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, default=1)
+
+class Order(models.Model):
+    order_id = models.AutoField(primary_key=True)
+    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    items_ordered = models.ManyToManyField(Item)
+    store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+
+class Driver(models.Model):
+    driver_id = models.AutoField(primary_key=True)
+    first_name = models.CharField(max_length=100, default='')
+    last_name = models.CharField(max_length=100, default='')
+    driver_username = models.CharField(max_length=100, default='')
+    driver_password = models.CharField(max_length=100, default='')
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+    order_id = models.ForeignKey(Order, on_delete=models.CASCADE)

@@ -1,3 +1,4 @@
+"""
 from shared_data import CITY_INFORMATION_MAP
 
 def getZone(latitude, longitude):
@@ -19,8 +20,9 @@ def _inZone(lat, long, zone):
     return False
 
 def authorizeOrder(userID, userLocation, storeLocation, items):
-    """ Check if store is open, user credit card is working
+    """ """Check if store is open, user credit card is working
     and that there are delivery drivers to deliver
+    """
     """
     pass
 
