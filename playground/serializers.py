@@ -4,7 +4,7 @@ from playground.models import Customer,Store,Item,Order,Driver
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model=Customer
-        fields=('customer_id','first_name','last_name','username','password','phone_number','email','latitude','longitude')   
+        fields=('customer_id','first_name','last_name','username','password','phone_number','email','latitude','longitude','favorite_stores')   
 
 class StoreSerializer(serializers.ModelSerializer):
     class Meta:

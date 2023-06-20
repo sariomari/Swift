@@ -10,7 +10,7 @@ class Customer(models.Model):
     email = models.EmailField(default='')
     latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
-    #favorite_stores = models.ManyToManyField('Store', related_name='favorited_by')
+    favorite_stores = models.ManyToManyField('Store', related_name='favorited_by', blank =True)
 
 
 class Store(models.Model):

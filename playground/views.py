@@ -33,6 +33,15 @@ def CustomerApi(request,id=0):
         customer=Customer.objects.get(customer_id=id )
         customer.delete()
         return JsonResponse("Deleted Successfully",safe=False)
+    elif request.method == 'FAVORITE_STORES':
+        customer_id = id
+        customer = Customer.objects.get(customer_id=customer_id)
+        favorite_stores = customer.favorite_stores.all()
+        store_serializer = StoreSerializer(favorite_stores, many=True)
+        return JsonResponse(store_serializer.data, safe=False)
+
+    
+
 
 @csrf_exempt 
 def StoreApi(request,id=0):
@@ -59,7 +68,7 @@ def StoreApi(request,id=0):
         store=Store.objects.get(store_id=id )
         store.delete()
         return JsonResponse("Deleted Successfully",safe=False)
-
+   
 @csrf_exempt 
 def ItemApi(request,id=0):
     if request.method=='GET':
