@@ -28,5 +28,5 @@ urlpatterns =[
     re_path(r'^driver$', views.DriverApi),
     re_path(r'^driver/([0-9]+)$', views.DriverApi),
     #url(r'^customer$',views.CustomerApi),
-    #url(r'^customer/([0-9]+)$',views.CustomerApi) 
+    #url(r'^customer/([0-9]+)$',views.CustomerApi)
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

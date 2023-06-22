@@ -42,4 +42,3 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = ('task_id', 'store_id', 'driver_id',
                   'order_id', 'active', 'timestamp')
-

@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Customer(models.Model):
     customer_id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=100, default='')
@@ -23,12 +24,13 @@ class Store(models.Model):
     picpath = models.CharField(max_length=100, default='')
 
 
+
 class Item(models.Model):
     item_id = models.AutoField(primary_key=True)
     description = models.CharField(max_length=100, default='')
     price = models.IntegerField(default=0)
     quantity = models.IntegerField(default=0)
-    picture1 =models.CharField(max_length=500, default='')
+    picture1 = models.CharField(max_length=500, default='')
     picture2 = models.CharField(max_length=500, default='')
     store = models.ForeignKey(Store, on_delete=models.CASCADE, default=1)
 
@@ -44,6 +46,7 @@ class Order(models.Model):
     destination_longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
     items_ordered = models.ManyToManyField(Item)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+
 
 class Driver(models.Model):
     driver_id = models.AutoField(primary_key=True)
