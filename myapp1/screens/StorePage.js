@@ -21,8 +21,11 @@ import { Header } from '../components';
 import { TextInput } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
 import * as Font from 'expo-font';
+import {Own_URL} from '../Variables'; 
 
 const StorePage = ({ navigation, route }) => {
+  const [items, setItems] = useState([]);
+
   const [fontLoaded, setFontLoaded] = useState(false);
   useEffect(() => {
     const loadFont = async () => {
@@ -37,8 +40,47 @@ const StorePage = ({ navigation, route }) => {
     };
     loadFont();
   }, []);
-  const { items } = route.params;
-  const [itemsList, setitemsList] = React.useState(items);
+  const { store_id ,customerid} = route.params;
+  const getdata = async () => {
+    
+  try{
+    
+    let response = await fetch(`${Own_URL}/item/get_store_items?store_id=${store_id}`, {
+      method: 'GET',
+    });
+    if (response.ok) {
+      const data = await response.json();
+      setItems(data.items);
+
+  // Navigating to the StorePage with the items
+    }
+    else {
+    Alert.alert('Login Failed', 'Invalid username or password');
+    }
+  
+  }
+  catch (error) {
+    console.error('Error:', error);
+    Alert.alert('Error', 'An error occurred during login');
+  }
+ 
+};
+useEffect(() => {
+  getdata();
+}, [store_id]);
+
+
+
+
+
+
+
+
+
+
+
+
+  const [itemsList, setitemsList] = React.useState([]);
   
   React.useEffect(() => {
     setitemsList(items);
@@ -47,7 +89,6 @@ const StorePage = ({ navigation, route }) => {
   const screenWidth = Dimensions.get('window').width;
 
    navigation = useNavigation();
-  console.log('Items:', items);
   
   const numColumns = 1;
   const styles = StyleSheet.create({
@@ -68,20 +109,19 @@ const StorePage = ({ navigation, route }) => {
       flexDirection: 'column', // Added this line
     },
     itemImage: {
-      width: 100,
-      height: 90,
-      marginBottom: 15,
-      borderRadius: 5,
+      width: 150,
+      height: 115,
+      marginBottom: 5,
       marginTop:5,
     },
       textContainer: {
-        marginTop:15,
+        marginTop:5,
         flexDirection: 'row',
         alignItems: 'left',
         flex: 1,
       },
       itemPrice:{
-        fontSize: 22,
+        fontSize: 18,
         fontWeight: 'bold',
         marginRight:24,
         fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
@@ -89,7 +129,7 @@ const StorePage = ({ navigation, route }) => {
         
       },
       itemText: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
         flex:1,
         fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
@@ -120,7 +160,7 @@ const StorePage = ({ navigation, route }) => {
         right: 1,
         width: 30,
         height: 30,
-        alignItems: 'center',
+        alignItems: 'led',
         justifyContent: 'center',
         backgroundColor: '#ebebeb',
         borderRadius: 15,
@@ -202,16 +242,51 @@ const MyFlatList = () => {
     console.log('Pressed item:', item);
   };
 
-  
+  const imageMapper = {
+    './../../ItemsPictures/Nike/nike_first_item1.jpeg': require('./../assets/Nike/nike_first_item1.jpeg'),
+    './../../ItemsPictures//Nike/nike_first_item2.jpeg': require('./../assets/Nike/nike_first_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_2_item1.jpeg': require('./../assets/Nike/nike_2_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_2_item2.jpeg': require('./../assets/Nike/nike_2_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_3_item1.jpeg': require('./../assets/Nike/nike_3_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_3_item2.jpeg': require('./../assets/Nike/nike_3_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_4_item1.jpeg': require('./../assets/Nike/nike_4_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_4_item2.jpeg': require('./../assets/Nike/nike_4_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_5_item1.jpeg': require('./../assets/Nike/nike_5_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_5_item2.jpeg': require('./../assets/Nike/nike_5_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_6_item1.jpeg': require('./../assets/Nike/nike_6_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_6_item2.jpeg': require('./../assets/Nike/nike_6_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_7_item1.jpeg': require('./../assets/Nike/nike_7_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_7_item2.jpeg': require('./../assets/Nike/nike_7_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_8_item1.jpeg': require('./../assets/Nike/nike_8_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_8_item2.jpeg': require('./../assets/Nike/nike_8_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_1_item1.jpeg': require('./../assets/Zara/zara_1_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_1_item2.jpeg': require('./../assets/Zara/zara_1_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_2_item1.jpeg': require('./../assets/Zara/zara_2_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_2_item2.jpeg': require('./../assets/Zara/zara_2_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_3_item1.jpeg': require('./../assets/Zara/zara_3_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_3_item2.jpeg': require('./../assets/Zara/zara_3_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_4_item1.jpeg': require('./../assets/Zara/zara_4_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_4_item2.jpeg': require('./../assets/Zara/zara_4_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_5_item1.jpeg': require('./../assets/Zara/zara_5_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_5_item2.jpeg': require('./../assets/Zara/zara_5_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_6_item1.jpeg': require('./../assets/Zara/zara_6_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_6_item2.jpeg': require('./../assets/Zara/zara_6_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_7_item1.jpeg': require('./../assets/Zara/zara_7_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_7_item2.jpeg': require('./../assets/Zara/zara_7_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_8_item1.jpeg': require('./../assets/Zara/zara_8_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_8_item2.jpeg': require('./../assets/Zara/zara_8_item2.jpeg'),
+    
+    
+  }
 
 const renderItem = ({ item }) => (
   <View style={[styles.itemContainer, { width: screenWidth - 40 }]}>
   <View style={styles.itemContent}>
-    <View style={{ flexDirection: 'row', alignItems: 'center',paddingRight:60 }}>
-      <Image source={item.image} style={styles.itemImage} resizeMode="contain"  />
-      <Image source={item.image} style={styles.itemImage} resizeMode="contain"  />
+    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <Image source={imageMapper[item.picture1]} style={styles.itemImage} resizeMode="contain"  />
+      <Image source={imageMapper[item.picture2]} style={styles.itemImage} resizeMode="contain"  />
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'right', paddingHorizontal: 12 }}>
+      <View style={{ flexDirection: 'row', alignSelf:'right' ,paddingHorizontal:14 }}>
       <TouchableOpacity style={styles.cartButton} onPress={() => handleCartPress(item)}>
         {cartItems.some((cartItem) => cartItem.id === item.id) ? (
           <AntDesign name="check" style={styles.cartIcon} />
@@ -222,7 +297,7 @@ const renderItem = ({ item }) => (
       </View>
       </View>
       <View style={[styles.textContainer ]}>
-        <Text style={styles.itemText } >{item.name}</Text>
+        <Text style={styles.itemText } >{item.description}</Text>
         
         <Text style={styles.itemPrice}>{item.price}</Text>
       </View>
@@ -262,7 +337,7 @@ const FlatListRef =React.useRef()
       {renderSearch()}
       
       <View style={{ flex: 1 }}>
-      <MyFlatList data={itemsList}
+      <MyFlatList data={items}
   renderItem={({ item }) => renderItem(item)}
   numColumns={numColumns}/>
     </View>

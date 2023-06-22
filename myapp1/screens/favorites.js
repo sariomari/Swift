@@ -5,7 +5,9 @@ import { setSelectedTab } from '../stores/tab/tabActions';
 import { AntDesign } from '@expo/vector-icons';
 import { TextInput } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
-const Favorites = ({ navigation, setSelectedTab }) => {
+const Favorites = ({ navigation, setSelectedTab,route }) => {
+  const {firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude,favorite_stores} = route.params;  
+  console.log(favorite_stores)
   const [fontLoaded, setFontLoaded] = React.useState(false);
   React.useEffect(() => {
       const loadFont = async () => {
@@ -28,15 +30,9 @@ const Favorites = ({ navigation, setSelectedTab }) => {
       </View>
     );
   }
-  const data = [
-    { id: '1', title: 'ZARA', image: require("./../assets/zara.png"), isFavorite: true },
-    { id: '2', title: 'NIKE', image: require("./../assets/nike.png"), isFavorite: true },
-    { id: '3', title: 'ADIDAS', image: require("./../assets/adidas.png"), isFavorite: true },
-    { id: '4', title: 'BERSHKA', image: require("./../assets/bershka.png"), isFavorite: true },
-    { id: '5', title: 'PUMA', image: require("./../assets/puma.png"), isFavorite: true },
-    { id: '6', title: 'MANGO', image: require("./../assets/Mango.png"), isFavorite: true },
-  ];
-  const [favoritesList, setFavorites] = React.useState(data.filter(item => item.isFavorite));
+
+
+  console.log(favorite_stores)
 
   const numColumns = 2;
   const screenWidth = Dimensions.get('window').width;
@@ -93,12 +89,22 @@ const Favorites = ({ navigation, setSelectedTab }) => {
       },
 
   });
+  const imageMapper = {
+    './../assets/zara.png': require('./../assets/zara.png'),
+  './../assets/nike.png': require('./../assets/nike.png'),
+  './../assets/adidas.png' : require('./../assets/adidas.png'),
+               './../assets/bershka.png' :  require('./../assets/bershka.png') ,
+             './../assets/Mango.png' :  require('./../assets/Mango.png') ,
+                './../assets/pull.png' :  require('./../assets/pull.png') , 
+               './../assets/lv.png' :  require('./../assets/lv.png') ,
+                './../assets/puma.png':  require('./../assets/puma.png')
 
+  }
 
   const MyFlatList = () => {
     const handlePress = (item) => {
       // Navigate to a different page or screen
-      navigation.navigate('Details', { itemId: item.id });
+      navigation.navigate('StorePage', { store_id: item.store_id,customerId:customerId });
     };
 
     const handleFavorite = (item) => {
@@ -117,15 +123,12 @@ const Favorites = ({ navigation, setSelectedTab }) => {
     const renderItem = ({ item }) => (
       <TouchableOpacity onPress={() => handlePress(item)}>
       <View style={[styles.itemContainer, { width: (screenWidth/2 )-16}]}>
-          <Image source={item.image} style={styles.itemImage} resizeMode="contain"/>
+          <Image source={imageMapper[item.picpath]} style={styles.itemImage} resizeMode="contain"/>
           <View style={styles.itemContent}>
-          <Text style={styles.itemText}>{item.title}</Text>
+          <Text style={styles.itemText}>{item.store_name}</Text>
           <TouchableOpacity onPress={() => handleFavorite(item)} style={styles.favoriteButton}>
-{item.isFavorite ? (
   <AntDesign name="heart" size={23} color="black" />
-) : (
-  <AntDesign name="hearto" size={23} color="black" />
-)}
+
 </TouchableOpacity>
       </View>
       </View>
@@ -134,9 +137,9 @@ const Favorites = ({ navigation, setSelectedTab }) => {
   );
   return (
     <FlatList
-    data={favoritesList}
+    data={favorite_stores}
     renderItem={renderItem}
-    keyExtractor={(item) => item.id}
+    keyExtractor={(item, index) => item.id + index}
     numColumns={numColumns}
     
   />
@@ -198,7 +201,7 @@ const Favorites = ({ navigation, setSelectedTab }) => {
          
           {renderSearch()}
           <View style={{ flex: 1 }}>
-      <MyFlatList data={favoritesList}
+      <MyFlatList data={favorite_stores}
   renderItem={({ item }) => renderItem(item)}
   numColumns={numColumns}/>
     </View>

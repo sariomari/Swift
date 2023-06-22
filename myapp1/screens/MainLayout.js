@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -14,13 +14,50 @@ import Animated,{useSharedValue ,useAnimatedStyle,withTiming}from 'react-native-
 import { connect } from 'react-redux';
 import { setSelectedTab } from '../stores/tab/tabActions';
 import  {Horizontalcards}from "../components"
+
 import { useNavigation } from '@react-navigation/native';
+import { DrawerActions } from '@react-navigation/native';
+import {Own_URL} from '../Variables'; 
+
 import { Header } from '../components';
 import { TextInput } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
+import CustomDrawer from '../navigation/CustomDrawer';
 import * as Font from 'expo-font';
 const screenWidth = Dimensions.get('window').width;
-const MainLayout = ({drawerAnimationStyle,navigation,selectedTab,setSelectedTab}) => {
+const MainLayout = ({drawerAnimationStyle,selectedTab,setSelectedTab,route,customerData,...props}) => {
+  const {
+    firstname = customerData?.firstname,
+    lastname = customerData?.lastname,
+    customerId = customerData?.customerId,
+    username = customerData?.username,
+    password = customerData?.password,
+    phone_number = customerData?.phone_number,
+    email = customerData?.email,
+    latitude = customerData?.latitude,
+    longitude = customerData?.longitude
+  } = route.params || {};
+
+  fetch(`${Own_URL}/customer/${customerId}`, {
+    method: 'FAVORITE_STORES',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      favorite_stores=data
+      // Process the returned data
+      // Update your React Native component state or perform other actions
+    })
+    .catch((error) => {
+      console.error(error);
+      // Handle any error that occurs during the request
+    });
+
+   
+
+
   const [fontLoaded, setFontLoaded] = React.useState(false);
   React.useEffect(() => {
       const loadFont = async () => {
@@ -35,7 +72,8 @@ const MainLayout = ({drawerAnimationStyle,navigation,selectedTab,setSelectedTab}
   
       loadFont();
     }, []);
-  
+    const navigation = useNavigation();
+
     function renderLogo() {
         return (
           <View style={styles.logoContainer }>
@@ -51,18 +89,42 @@ const MainLayout = ({drawerAnimationStyle,navigation,selectedTab,setSelectedTab}
         { id: '4', name: 'High-Waisted Pants', image: require('./../assets/nike.png'), price: '$44.99' },
         // Add more items as needed
       ];
-    const data = [
-        { id: '1', title: 'ZARA',image: require("./../assets/zara.png") , isFavorite: false  },
-        { id: '2', title: 'NIKE',image: require("./../assets/nike.png") , isFavorite: false  },
-        { id: '3', title: 'ADIDAS',image: require("./../assets/adidas.png"), isFavorite: false   },
-        { id: '4', title: 'BERSHKA' ,image: require("./../assets/bershka.png"), isFavorite: false  },
-        { id: '5', title: 'PUMA',image: require("./../assets/puma.png") , isFavorite: false  },
-        { id: '6', title: 'MANGO' ,image: require("./../assets/Mango.png"), isFavorite: false  },
-        { id: '7', title: 'PULL & BEAR' ,image: require("./../assets/pull.png"), isFavorite: false  },
-        { id: '8', title: 'LV',image: require("./../assets/lv.png"), isFavorite: false   },
-        // Add more items as needed
-      ];
+      const [data, setData] = useState([]);
+
+    useEffect(() => {
+        fetch(`${Own_URL}/store`, {  // Replace this with your actual API endpoint
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+            // Parse the response, and use it to update the component state
+            let parsedData = responseJson.map(item => ({
+                id: item.store_id.toString(), // id must be a string
+                title: item.store_name,
+                image: item.picpath.toString() === './../assets/zara.png' ? require('./../assets/zara.png') : 
+                item.picpath.toString() === './../assets/nike.png' ? require('./../assets/nike.png') : 
+                item.picpath.toString() === './../assets/adidas.png' ? require('./../assets/adidas.png') : 
+                item.picpath.toString() === './../assets/bershka.png' ? require('./../assets/bershka.png') : 
+                item.picpath.toString() === './../assets/Mango.png' ? require('./../assets/Mango.png') : 
+                item.picpath.toString() === './../assets/pull.png' ? require('./../assets/pull.png') : 
+                item.picpath.toString() === './../assets/lv.png' ? require('./../assets/lv.png') : 
+                item.picpath.toString() === './../assets/puma.png' ? require('./../assets/puma.png') : null,
+                isFavorite: false,
+            }));
+            
+            setData(parsedData);
+            setFilteredData(parsedData);
+        })
+        .catch((error) => {
+            console.error(error);
+            // Handle any error that occurs during the request
+        });
+    }, []);
 const [menuList, setMenuList] = React.useState(data);
+const [filteredData, setFilteredData] = React.useState(data);
 
 const [isFavorite, setIsFavorite] = React.useState(false);
 
@@ -128,11 +190,16 @@ const styles = StyleSheet.create({
 
   const handlePress = (item) => {
     // Navigate to a different page or screen
-    navigation.navigate('StorePage', {  items: storeItems });
+    //bksha llbackend m3 elid  1 
+    store_id = item.id 
+
+
+
+    navigation.navigate('StorePage', {  store_id: store_id,customerId:customerId});
   };
   const handleFavorite = (item) => {
     
-    const updatedData = menuList.map((dataItem) => {
+    const updatedData = filteredData.map((dataItem) => {
         
       if (dataItem.id === item.id) {
         return { ...dataItem, isFavorite: !dataItem.isFavorite };
@@ -164,7 +231,7 @@ const styles = StyleSheet.create({
     
     return (
         <FlatList
-        data={menuList}
+        data={filteredData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         numColumns={numColumns}
@@ -174,13 +241,14 @@ const styles = StyleSheet.create({
     
     
   }
-  
+
+ 
     function renderSearch(){
     return (
         <View style={styles.container}>
       {renderLogo()}
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 }}>
-        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginRight: 2 }}>
+        <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} style={{ marginRight: 2 }}>
           <Image source={require('../assets/menu.png')} style={{ width: 24, height: 24,tintColor:"#000000" }} />
         </TouchableOpacity>
         <View 
@@ -199,15 +267,25 @@ const styles = StyleSheet.create({
             <Image source={require("./../assets/search.png")}
                style={{ width:20,height:20,tintColor: '#000000'
                }}/>
-            <TextInput
-            style={{
-                flex:1,
-                marginLeft:12,
-                fontFamily: fontLoaded ? 'CoolFont' : 'Arial', fontSize:18, lineHeight: 22,color:'#000000'
-
-
-
-            }} placeholder='    Find a store'/>
+           <TextInput
+    style={{
+        flex: 1,
+        marginLeft: 12,
+        fontFamily: fontLoaded ? 'CoolFont' : 'Arial',
+        fontSize: 18, 
+        lineHeight: 22, 
+        color:'#000000'
+    }}
+    placeholder='    Find a store'
+    onChangeText={(text) => {
+        let newData = data.filter(item => {
+            let itemData = item.title.toUpperCase();
+            let textData = text.toUpperCase();
+            return itemData.indexOf(textData) > -1;
+        });
+        setFilteredData(newData);
+    }}
+/>
 
 </View>
         </View>
@@ -220,29 +298,20 @@ const styles = StyleSheet.create({
     setSelectedTab("MainLayout")},[])
     
     return (
-        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      <Header
-        style={{ backgroundColor: '#FF4F4F' }}
-        statusBarProps={{ barStyle: 'dark-content' }}
-        centerComponent={{ text: 'Home', style: { color: '#000000', fontSize: 20 } }}
-      />
-        <View style={{
-            flex:1,
-            paddingTop:30
-
-        }}>
-           
-            {renderSearch()}
-            <View style={{ flex: 1 }}>
-      <MyFlatList data={menuList}
-  renderItem={({ item }) => renderItem(item)}
-  numColumns={numColumns}/>
-    </View>
-</View>
-        </View>
-        
-       
-    )
+      <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+          <Header
+              style={{ backgroundColor: '#FF4F4F' }}
+              statusBarProps={{ barStyle: 'dark-content' }}
+              centerComponent={{ text: 'Home', style: { color: '#000000', fontSize: 20 } }}
+          />
+          <View style={{ flex:1, paddingTop:30 }}>
+              {renderSearch()}
+              <View style={{ flex: 1 }}>
+                  <MyFlatList />
+              </View>
+          </View>
+      </View>
+  )
 }
 
 

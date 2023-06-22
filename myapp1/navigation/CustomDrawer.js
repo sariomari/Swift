@@ -10,14 +10,17 @@ import StorePage from '../screens/StorePage';
 import Cart from '../screens/cart';
 import Invite from '../screens/Invite';
 import HelpCenter from '../screens/HelpCenter';
+import Loginpage from '../screens/loginpage';
 import Orders from '../screens/orders';
 import OrderDetails from '../screens/OrderDetails';
 import Profile from '../screens/Profile';
+import Signuppage from '../screens/signuppage';
 import { connect } from 'react-redux';
 import { setSelectedTab } from '../stores/tab/tabActions';
 import { useFonts } from 'expo-font';
 import { AppLoading } from 'expo';
 import * as Font from 'expo-font';
+import {Own_URL} from '../Variables'; 
 
 const storeItems = [
   { id: '1', name: 'Slim Fit Trousers', image: require('./../assets/nike.png'), price: '$29.99' },
@@ -88,7 +91,9 @@ const CustomDrawerItem = ({ label, icon, isFocused, onPress }) => {
     </TouchableOpacity>
   )
 }
-const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab }) => {
+
+const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab,firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude,favorite_stores }) => {
+
     const [fontLoaded, setFontLoaded] = useState(false);
   useEffect(() => {
     const loadFont = async () => {
@@ -105,6 +110,23 @@ const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab }) => {
     };
     loadFont();
   }, []);
+  fetch(`${Own_URL}/customer/${customerId}`, {
+    method: 'FAVORITE_STORES',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      favorite_stores=data
+
+      // Process the returned data
+      // Update your React Native component state or perform other actions
+    })
+    .catch((error) => {
+      console.error(error);
+      // Handle any error that occurs during the request
+    });
   return (
     <DrawerContentScrollView
       scrollEnabled={true}
@@ -144,7 +166,7 @@ const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab }) => {
             marginTop: 12,
             alignItems: 'center'
           }}
-          onPress={() =>  navigation.navigate("Profile")}
+          onPress={() =>  navigation.navigate("Profile",{firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude})}
         >
           <Image
             source={require("./../assets/avataricon.png")}
@@ -157,7 +179,7 @@ const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab }) => {
           <View style={{
             marginLeft: 12
           }}>
-            <Text style={{ color: "#000000", fontFamily: fontLoaded ? 'FormalfB' : 'Arial', fontSize: 16, lineHeight: 22 }}>Ahmad Rayan </Text>
+            <Text style={{ color: "#000000", fontFamily: fontLoaded ? 'FormalfB' : 'Arial', fontSize: 16, lineHeight: 22 }}>  {`${firstname} ${lastname}`} </Text>
             <Text style={{ color: "#000000", fontFamily: fontLoaded ? 'Formalf' : 'Arial', fontSize: 14, lineHeight: 22 }}>View Your Profile </Text>
           </View>
         </TouchableOpacity>
@@ -172,10 +194,10 @@ const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab }) => {
           <CustomDrawerItem
             label={"Home"}
             icon={require("./../assets/home.png")}
-            isFocused={selectedTab == "Home"}
+            isFocused={selectedTab == "MainLayout"}
             onPress={() => {
-              setSelectedTab("Home")
-              navigation.navigate("Home")
+              setSelectedTab("MainLayout")
+              navigation.navigate("MainLayout",{firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude})
             }}
           />
           <CustomDrawerItem
@@ -184,7 +206,7 @@ const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab }) => {
             isFocused={selectedTab == "My Favorites"}
             onPress={() => {
               setSelectedTab("My Favorites")
-              navigation.navigate("Favorites")
+              navigation.navigate("Favorites",{firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude,favorite_stores})
             }}
           />
           <CustomDrawerItem
@@ -193,7 +215,7 @@ const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab }) => {
             isFocused={selectedTab == "My Cart"}
             onPress={() => {
               setSelectedTab("My Cart")
-              navigation.navigate("Cart", { items: storeItems })
+              navigation.navigate("Cart",{firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude})
             }}
           />
           <CustomDrawerItem
@@ -244,6 +266,10 @@ const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab }) => {
           <CustomDrawerItem
             label="Logout"
             icon={require("./../assets/logout.png")}
+            isFocused={selectedTab == "Logout"}
+            onPress={() => {
+              navigation.navigate("Loginpage")
+            }}
           />
         </View>
       </View>
@@ -251,8 +277,10 @@ const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab }) => {
     </DrawerContentScrollView>
   )
 }
-const CustomDrawer = ({ selectedTab, setSelectedTab }) => {
+const CustomDrawer = ({ selectedTab, setSelectedTab,route }) => {
   const [fontLoaded, setFontLoaded] = useState(false);
+  const { firstname, lastname, customerId ,username,password,phone_number,email,latitude,longitude} = route.params; // Get the route parameters
+
   useEffect(() => {
     const loadFont = async () => {
       await Font.loadAsync({
@@ -266,7 +294,7 @@ const CustomDrawer = ({ selectedTab, setSelectedTab }) => {
     };
     loadFont();
   }, []);
-
+  favorite_stores=[]
   const [progress, setProgress] = React.useState(new Animated.Value(0))
   const scale = Animated.interpolateNode(progress, {
     inputRange: [0, 1],
@@ -277,7 +305,8 @@ const CustomDrawer = ({ selectedTab, setSelectedTab }) => {
     outputRange: [0, 26]
   })
   const animatedStyle = { borderRadius, tranform: [{ scale }] }
-
+  
+   
   return (
     <View
       style={{
@@ -307,13 +336,24 @@ const CustomDrawer = ({ selectedTab, setSelectedTab }) => {
               navigation={props.navigation}
               selectedTab={selectedTab}
               setSelectedTab={setSelectedTab}
-              fontLoaded={fontLoaded}
+              firstname={firstname}
+              lastname ={lastname}
+              customerId={customerId}
+              username={username}
+              password={password}
+              phone_number={phone_number}
+              latitude={latitude}
+              longitude={longitude}
+              email={email}
+              favorite_stores={favorite_stores}
+              
             />
           )
         }}
       >
-        <Drawer.Screen name="Home" options={{ headerShown: false }} >
-          {props => <MainLayout {...props} drawerAnimationStyle={animatedStyle} />}
+
+        <Drawer.Screen name="MainLayout" options={{ headerShown: false }} >
+          {props => <MainLayout {...props} drawerAnimationStyle={animatedStyle} customerData={{firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude}} />}
 
         </Drawer.Screen>
         <Drawer.Screen name="Favorites" options={{ headerShown: false }} component={Favorites} />
@@ -326,7 +366,6 @@ const CustomDrawer = ({ selectedTab, setSelectedTab }) => {
 
         <Drawer.Screen name="Profile" options={{ headerShown: false }} component={Profile} />
 
-
       </Drawer.Navigator>
 
     </View>
@@ -335,8 +374,7 @@ const CustomDrawer = ({ selectedTab, setSelectedTab }) => {
 
 function mapStateToProps(state) {
   return {
-    selectedTab: state.tabReducer.selectedTab
-  }
+    selectedTab: state.tabReducer.selectedTab  };
 }
 function mapDispatchToProps(dispatch) {
   return {

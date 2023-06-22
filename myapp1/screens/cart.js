@@ -18,9 +18,48 @@ import { useNavigation } from '@react-navigation/native';
 import { Header } from '../components';
 import { TextInput } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
-
+import { Own_URL } from '../Variables';
 import { AntDesign } from '@expo/vector-icons';
 const Cart = ({ navigation, route }) => {
+  const {firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude} = route.params;  
+  
+  const imageMapper = {
+    './../../ItemsPictures/Nike/nike_first_item1.jpeg': require('./../assets/Nike/nike_first_item1.jpeg'),
+    './../../ItemsPictures//Nike/nike_first_item2.jpeg': require('./../assets/Nike/nike_first_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_2_item1.jpeg': require('./../assets/Nike/nike_2_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_2_item2.jpeg': require('./../assets/Nike/nike_2_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_3_item1.jpeg': require('./../assets/Nike/nike_3_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_3_item2.jpeg': require('./../assets/Nike/nike_3_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_4_item1.jpeg': require('./../assets/Nike/nike_4_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_4_item2.jpeg': require('./../assets/Nike/nike_4_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_5_item1.jpeg': require('./../assets/Nike/nike_5_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_5_item2.jpeg': require('./../assets/Nike/nike_5_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_6_item1.jpeg': require('./../assets/Nike/nike_6_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_6_item2.jpeg': require('./../assets/Nike/nike_6_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_7_item1.jpeg': require('./../assets/Nike/nike_7_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_7_item2.jpeg': require('./../assets/Nike/nike_7_item2.jpeg'),
+    './../../ItemsPictures/Nike/nike_8_item1.jpeg': require('./../assets/Nike/nike_8_item1.jpeg'),
+    './../../ItemsPictures/Nike/nike_8_item2.jpeg': require('./../assets/Nike/nike_8_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_1_item1.jpeg': require('./../assets/Zara/zara_1_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_1_item2.jpeg': require('./../assets/Zara/zara_1_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_2_item1.jpeg': require('./../assets/Zara/zara_2_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_2_item2.jpeg': require('./../assets/Zara/zara_2_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_3_item1.jpeg': require('./../assets/Zara/zara_3_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_3_item2.jpeg': require('./../assets/Zara/zara_3_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_4_item1.jpeg': require('./../assets/Zara/zara_4_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_4_item2.jpeg': require('./../assets/Zara/zara_4_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_5_item1.jpeg': require('./../assets/Zara/zara_5_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_5_item2.jpeg': require('./../assets/Zara/zara_5_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_6_item1.jpeg': require('./../assets/Zara/zara_6_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_6_item2.jpeg': require('./../assets/Zara/zara_6_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_7_item1.jpeg': require('./../assets/Zara/zara_7_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_7_item2.jpeg': require('./../assets/Zara/zara_7_item2.jpeg'),
+    './../../ItemsPictures/Zara/zara_8_item1.jpeg': require('./../assets/Zara/zara_8_item1.jpeg'),
+    './../../ItemsPictures/Zara/zara_8_item2.jpeg': require('./../assets/Zara/zara_8_item2.jpeg'),
+    
+    
+  }
+
   const [fontLoaded, setFontLoaded] = useState(false);
   useEffect(() => {
     const loadFont = async () => {
@@ -39,25 +78,59 @@ const Cart = ({ navigation, route }) => {
     };
     loadFont();
   }, []);
-  const { items } = route.params;
-  const [itemsList, setitemsList] = React.useState(items);
+
+
+
+
+
   
-  React.useEffect(() => {
-    setitemsList(items);
-  }, [items]);
- 
+  const [cartItems, setCartItems] = useState([]);
   const screenWidth = Dimensions.get('window').width;
 
-   navigation = useNavigation();
-  console.log('Items:', items);
+  const items=[]
+  useEffect(() => {
+    fetchCartItems();
+  }, []);
+
+  const fetchCartItems = async () => {
+    try {
+      const response = await fetch(`${Own_URL}/cart/get_cart_items?customer=${customerId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const items = data.cart_items;
+
+        const itemDataPromises = items.map(async (item) => {
+          const itemResponse = await fetch(`${Own_URL}/item/get_item_data?item_id=${item}`);
+          if (itemResponse.ok) {
+            const itemData = await itemResponse.json();
+            return itemData;
+          } else {
+            console.log(`Failed to fetch item data for item ID ${item.id}`);
+            return null;
+          }
+        });
+  
+        // Wait for all item data promises to resolve
+        const itemDataList = await Promise.all(itemDataPromises);
+  
+        // Filter out any failed item data requests
+        const validItemDataList = itemDataList.filter((itemData) => itemData !== null);
+  
+        // Set the fetched item data to the cartItems state
+        setCartItems(validItemDataList);
+      } else {
+        console.log('Failed to fetch cart items');
+      }
+    } catch (error) {
+      console.log('Error while fetching cart items:', error);
+    }
+  };
+
+  
   
   const numColumns = 1;
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#FFFFFF', // Set the desired background color here
-      
-    },
+    
     
     itemContainer: {
       flex: 1,
@@ -70,31 +143,31 @@ const Cart = ({ navigation, route }) => {
       backgroundColor: '#ebebeb',
       borderRadius: 8,
       height:178,width:255,
-      marginBottom:10,
+      marginBottom:5,
       flexDirection: 'column', // Added this line
     },
     itemImage: {
-      width: 100,
-      height: 90,
-      marginBottom: 15,
-      borderRadius: 5,
+      width: 150,
+      height: 115,
+      marginBottom: 5,
       marginTop:5,
     },
       textContainer: {
-        marginTop:15,
+        marginTop:5,
         flexDirection: 'row',
         alignItems: 'left',
         flex: 1,
       },
       itemPrice:{
-        fontSize: 19,
+        fontSize: 18,
         fontWeight: 'bold',
         marginRight:24,
-       
+        fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+
         
       },
       itemText: {
-        fontSize: 19,
+        fontSize: 16,
         fontWeight: 'bold',
         flex:1,
         fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
@@ -125,7 +198,7 @@ const Cart = ({ navigation, route }) => {
         right: 1,
         width: 30,
         height: 30,
-        alignItems: 'center',
+        alignItems: 'led',
         justifyContent: 'center',
         backgroundColor: '#ebebeb',
         borderRadius: 15,
@@ -134,8 +207,28 @@ const Cart = ({ navigation, route }) => {
       cartIcon: {
         fontSize: 32,
         color: '#000000',
-      }
-  });
+      },
+      orderButton: {
+        backgroundColor: '#ebebeb',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignSelf: 'center',
+        marginBottom: 20
+      },
+      orderButtonText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+      },
+    });
+    
+    
+    
+    
+    
+    
+    
+
 
 
 
@@ -178,26 +271,32 @@ const Cart = ({ navigation, route }) => {
 
     )
 }
-const [cartItems, setCartItems] = React.useState([]);
-
 const handleCartPress = React.useCallback(
   (item) => {
-    // Check if the item is already in the cart
-    const index = cartItems.findIndex((cartItem) => cartItem.id === item.id);
 
-    if (index === -1) {
-      // Item is not in the cart, add it
-      const updatedCart = [...cartItems, item];
-      setCartItems(updatedCart);
-    } else {
-      // Item is already in the cart, remove it
-      const updatedCart = cartItems.filter(
-        (cartItem) => cartItem.id !== item.id
-      );
-      setCartItems(updatedCart);
-    }
+    const removeCartItem = async () => {
+      try {
+        
+        const response = await fetch(`${Own_URL}/cart/remove_cart_item?customer=${customerId}&item=${item.item_id}`, {
+          method: 'POST',
+        });
+        if (response.ok) {
+          console.log('Item removed from cart:', item.id);
+          
+          // Update the cart items state by filtering out the removed item
+          const updatedCartItems = cartItems.filter((cartItem) => cartItem.item_id !== item.item_id);
+          setCartItems(updatedCartItems);
+        } else {
+          console.log('Failed to remove item from cart:', item.id);
+        }
+      } catch (error) {
+        console.log('Error while removing item from cart:', error);
+      }
+    };
+
+    removeCartItem();
   },
-  [cartItems]
+  [cartItems, customerId]
 );
   
 const MyFlatList = () => {
@@ -209,35 +308,31 @@ const MyFlatList = () => {
 
   
 
-const renderItem = ({ item }) => (
-  <View style={[styles.itemContainer, { width: screenWidth - 40 }]}>
-  <View style={styles.itemContent}>
-    <View style={{ flexDirection: 'row', alignItems: 'center',paddingRight:60 }}>
-      <Image source={item.image} style={styles.itemImage} resizeMode="contain"  />
-      <Image source={item.image} style={styles.itemImage} resizeMode="contain"  />
-      </View>
-      <View style={{ flexDirection: 'row', alignItems: 'right', paddingHorizontal: 12 }}>
-      <TouchableOpacity style={styles.cartButton} onPress={() => handleCartPress(item)}>
-        {cartItems.some((cartItem) => cartItem.id === item.id) ? (
-          <AntDesign name="shoppingcart" style={styles.cartIcon} />
-        ) : (
+  const renderItem = ({ item }) => (
+    <View style={[styles.itemContainer, { width: screenWidth - 40 }]}>
+    <View style={styles.itemContent}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Image source={imageMapper[item.picture1]} style={styles.itemImage} resizeMode="contain"  />
+        <Image source={imageMapper[item.picture2]} style={styles.itemImage} resizeMode="contain"  />
+        </View>
+        <View style={{ flexDirection: 'row', alignSelf:'right' ,paddingHorizontal:14 }}>
+        <TouchableOpacity style={styles.cartButton} onPress={() => handleCartPress(item)}>
             <AntDesign name="check" style={styles.cartIcon} />
           
-        )}
-      </TouchableOpacity>
+        </TouchableOpacity>
+        </View>
+        </View>
+        <View style={[styles.textContainer ]}>
+          <Text style={styles.itemText } >{item.description}</Text>
+          
+          <Text style={styles.itemPrice}>{item.price}</Text>
+        </View>
+      
       </View>
-      </View>
-      <View style={[styles.textContainer ]}>
-        <Text style={styles.itemText } >{item.name}</Text>
-        
-        <Text style={styles.itemPrice}>{item.price}</Text>
-      </View>
-    
-    </View>
-);
+  );
 return (
   <FlatList
-  data={itemsList}
+  data={cartItems}
   renderItem={renderItem}
   numColumns={numColumns}
   
@@ -265,11 +360,14 @@ const FlatListRef =React.useRef()
      
       {renderSearch()}
       
-      <View style={{ flex: 1 }}>
-      <MyFlatList data={itemsList}
+      <View   style={{  marginBottom: 20 }}>
+      <MyFlatList data={items}
   renderItem={({ item }) => renderItem(item)}
   numColumns={numColumns}/>
     </View>
+    <TouchableOpacity style={styles.orderButton}>
+      <Text style={styles.orderButtonText}>Order Now</Text>
+    </TouchableOpacity>
     </View>
 
    

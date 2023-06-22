@@ -66,9 +66,9 @@ const Orders = ({ navigation, route }) => {
           paddingVertical: 16,
           marginVertical: 10,
           marginHorizontal: 8,
-          backgroundColor: '#D3A5A5',
+          backgroundColor: '#ebebeb',
           borderRadius: 8,
-          height:90,width:255,
+          height:220,width:255,
           marginBottom:10,
           flexDirection: 'column', 
 
@@ -81,7 +81,7 @@ const Orders = ({ navigation, route }) => {
           marginTop:5,
         },
           textContainer: {
-            marginTop:16,
+            marginTop:1,
             flexDirection: 'row',
             alignItems: 'left',
             flex: 1,
@@ -142,6 +142,19 @@ const Orders = ({ navigation, route }) => {
             flexDirection: 'row',
             alignItems: 'center',
           },
+          returnButton: {
+            backgroundColor: '#B7E1A1',
+            paddingVertical: 8,
+            paddingHorizontal: 16,
+            borderRadius: 5,
+            marginTop: 1,
+          },
+          returnButtonText: {
+            color: '#000000',
+            fontWeight: 'bold',
+            fontSize:25,
+            fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+          },
       });
       function renderLogo() {
         return (
@@ -181,6 +194,13 @@ const renderItem = ({ item }) => (
       <Text style={styles.itemText}>{"Order Number:"}</Text>
       <Text style={styles.itemText}>{item.id}</Text>
     </View>
+    <View style={styles.textContainer}>
+      <Text style={styles.itemText}>{"Store:"}</Text>
+      <Text style={styles.itemText}>{"ZARA"}</Text>
+    </View>
+    <TouchableOpacity style={styles.returnButton} onPress={() => handleReturn(item)}>
+      <Text style={styles.returnButtonText}>Return Order</Text>
+    </TouchableOpacity>
   </TouchableOpacity>
     
     
