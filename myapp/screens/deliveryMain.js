@@ -54,7 +54,7 @@ export default class DeliveryMap extends React.Component {
                 channel: "location"
             });
             const { driver_id } = "tamerdamouni";
-            this.sendLocationToBackend(driver_id, latitude, longitude);
+            this.sendLocationToBackend(driver_id, this.props.latitude, this.props.longitude);
         }
     }
 
@@ -101,7 +101,7 @@ export default class DeliveryMap extends React.Component {
                 );
             }
         );
-
+        // if a new task has arrived
         if (this.state.latitude == 51.515579 && this.state.longitude == -0.128360) {
             this.assignTask("New Task Has Arrived!", "NY Madison Avenue", "One World Trade Center");
         }
