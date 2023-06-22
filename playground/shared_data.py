@@ -1,7 +1,7 @@
 TLV_DRIVERS = {
-    "ZONE1": [],
-    "ZONE2": [],
-    "ZONE3": [],
+    "ZONE1": {"tamerdamouni"},
+    "ZONE2": {"weammakhoul"},
+    "ZONE3": {"firasbaransi"},
 }
 
 TLV_ZONES = {

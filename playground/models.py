@@ -10,7 +10,7 @@ class Customer(models.Model):
     email = models.EmailField(default='')
     latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
-    #favorite_stores = models.ManyToManyField('Store', related_name='favorited_by')
+    favorite_stores = models.ManyToManyField('Store', related_name='favorited_by',blank=True)
 
 
 class Store(models.Model):
@@ -44,4 +44,6 @@ class Driver(models.Model):
     driver_password = models.CharField(max_length=100, default='')
     latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
+    area = models.CharField(max_length=100, default='')
+    zone = models.CharField(max_length=100, default='')
     order_id = models.ForeignKey(Order, on_delete=models.CASCADE)
