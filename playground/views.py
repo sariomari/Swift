@@ -8,7 +8,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from playground.models import Customer,Store,Item,Order,Driver,Cart
-from playground.serializers import CustomerSerializer ,StoreSerializer,ItemSerializer,OrderSerializer,CartSerializer,DriverSerializer
+from playground.serializers import CustomerSerializer ,StoreSerializer,ItemSerializer,OrderSerializer,CartSerializer,DriverSerializer, TaskSerializer
+from playground.driver_utils import update_driver_zone
 from django.core.files.storage import default_storage
 from django.contrib.auth import authenticate, login
 from django.views.decorators.http import require_POST
@@ -129,7 +130,7 @@ def DriverApi(request,id=0):
                 driver = Driver.objects.get(customer_id=id)
             except Driver.DoesNotExist:
                 return JsonResponse({"error": "User does not exist"}, status=404)
-            driver_serializer = DriverSerializer(customer)
+            driver_serializer = DriverSerializer(driver)
             driver_data = driver_serializer.data
             del driver_data['driver_id']
             return JsonResponse(driver_data, safe=False)
@@ -357,14 +358,14 @@ def create_task(request):
 def update_location(request):
     if request.method == 'POST':
         driver_data = JSONParser().parse(request)
+        print(driver_data)
         driver_id = driver_data['driver_id']
         latitude = driver_data['latitude']
         longitude = driver_data['longitude']
-        print(driver_id, latitude, longitude)
         Driver.objects.filter(driver_id=driver_id).update(
             latitude=latitude, longitude=longitude)
-        # update_driver_zone(driver_id=driver_id,
-        #                    latitude=latitude, longitude=longitude)
+        update_driver_zone(driver_id=driver_id,
+                           latitude=float(latitude), longitude=float(longitude))
 
         return JsonResponse({'message': 'Location data saved successfully'})
     return JsonResponse({'message': 'Invalid request method'})

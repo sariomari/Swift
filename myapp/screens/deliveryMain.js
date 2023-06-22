@@ -95,7 +95,7 @@ export default class DeliveryMap extends React.Component {
                     },
                     () => {
                         // Send the location data to the backend
-                        const { driver_id } = "tamerdamouni";
+                        const driver_id = 1;
                         this.sendLocationToBackend(driver_id, latitude, longitude);
                     }
                 );
@@ -126,10 +126,10 @@ export default class DeliveryMap extends React.Component {
         this.setState({ task: null, taskActive: false})
     }
 
-    sendLocationToBackend = (driverId, latitude, longitude) => {
-        const url = 'https://your-backend-api.com/updateLocation'; // Replace with your backend URL
+    sendLocationToBackend = (driver_id, latitude, longitude) => {
+        const url = 'http://127.0.0.1:8000/update_location'; // Replace with your backend URL
         const data = {
-            driver_id: driverId,
+            driver_id: driver_id,
             latitude,
             longitude
         };

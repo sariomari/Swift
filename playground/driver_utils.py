@@ -7,12 +7,25 @@ def update_driver_zone(driver_id, latitude, longitude):
     current_driver_zone = Driver.objects.get(driver_id=driver_id).zone
     new_driver_zone = get_zone_from_lat_long(
         latitude=latitude, longitude=longitude)
+    drivers_in_city = CITY_INFORMATION_MAP[current_driver_city][0]
+    drivers_in_new_zone = drivers_in_city[new_driver_zone]
 
-    if current_driver_zone != new_driver_zone:
-        drivers_in_city = CITY_INFORMATION_MAP[current_driver_city]
-        drivers_in_current_zone = drivers_in_city[current_driver_zone]
+    print(new_driver_zone)
+
+    print(f"current zone: {current_driver_zone}\n new_zone: {new_driver_zone}")
+
+    # driver is online and still in the same zone
+    if current_driver_zone == new_driver_zone:
+        return
+
+    # driver was offline, first update is now
+    elif not current_driver_zone:
         drivers_in_new_zone = drivers_in_city[new_driver_zone]
+        drivers_in_new_zone.add(driver_id)
 
+    # driver has moved zones
+    elif current_driver_zone != new_driver_zone:
+        drivers_in_current_zone = drivers_in_city[current_driver_zone]
         drivers_in_current_zone.remove(driver_id)
         drivers_in_new_zone.add(driver_id)
 
@@ -28,11 +41,11 @@ def get_zone_from_lat_long(latitude, longitude):
     zones = CITY_INFORMATION_MAP[city][1]
     zone1, zone2, zone3 = zones["zone1Bounds"], zones["zone2Bounds"], zones["zone3Bounds"]
     if _is_in_Zone(latitude, longitude, zone1):
-        return zone1
+        return "ZONE1"
     elif _is_in_Zone(latitude, longitude, zone2):
-        return zone2
+        return "ZONE2"
     elif _is_in_Zone(latitude, longitude, zone3):
-        return zone3
+        return "ZONE3"
     return Exception("Not in correct delivery area")
 
 
