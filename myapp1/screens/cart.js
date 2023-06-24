@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
-    View,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    Image,
-    FlatList,
-    Dimensions,
-    StyleSheet,
-    Button ,
-    ScrollView
+  View,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Image,
+  FlatList,
+  Dimensions,
+  StyleSheet,
+  Button,
+  ScrollView
 } from 'react-native';
-import Animated,{useSharedValue ,useAnimatedStyle,withTiming}from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { connect } from 'react-redux';
 import { setSelectedTab } from '../stores/tab/tabActions';
-import  {Horizontalcards}from "../components"
+import { Horizontalcards } from "../components"
 import { useNavigation } from '@react-navigation/native';
 import { Header } from '../components';
 import { Alert } from 'react-native';
@@ -25,8 +25,8 @@ import * as Font from 'expo-font';
 import { Own_URL } from '../Variables';
 import { AntDesign } from '@expo/vector-icons';
 const Cart = ({ navigation, route }) => {
-  const {firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude} = route.params;  
-  
+  const { firstname, lastname, customerId, username, password, phone_number, email, latitude, longitude } = route.params;
+
   const imageMapper = {
     './../../ItemsPictures/Nike/nike_first_item1.jpeg': require('./../assets/Nike/nike_first_item1.jpeg'),
     './../../ItemsPictures//Nike/nike_first_item2.jpeg': require('./../assets/Nike/nike_first_item2.jpeg'),
@@ -60,8 +60,8 @@ const Cart = ({ navigation, route }) => {
     './../../ItemsPictures/Zara/zara_7_item2.jpeg': require('./../assets/Zara/zara_7_item2.jpeg'),
     './../../ItemsPictures/Zara/zara_8_item1.jpeg': require('./../assets/Zara/zara_8_item1.jpeg'),
     './../../ItemsPictures/Zara/zara_8_item2.jpeg': require('./../assets/Zara/zara_8_item2.jpeg'),
-    
-    
+
+
   }
 
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -91,8 +91,8 @@ const Cart = ({ navigation, route }) => {
   const [currentlongitude, setcurrentlongitude] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const screenWidth = Dimensions.get('window').width;
-  const[dataids,setdataids] = useState([]);
-  const items=[]
+  const [dataids, setdataids] = useState([]);
+  const items = []
   useEffect(() => {
     fetchCartItems();
   }, []);
@@ -114,13 +114,13 @@ const Cart = ({ navigation, route }) => {
             return null;
           }
         });
-  
+
         // Wait for all item data promises to resolve
         const itemDataList = await Promise.all(itemDataPromises);
-  
+
         // Filter out any failed item data requests
         const validItemDataList = itemDataList.filter((itemData) => itemData !== null);
-  
+
         // Set the fetched item data to the cartItems state
         setCartItems(validItemDataList);
       } else {
@@ -131,12 +131,12 @@ const Cart = ({ navigation, route }) => {
     }
   };
 
-  
-  
+
+
   const numColumns = 1;
   const styles = StyleSheet.create({
-    
-    
+
+
     itemContainer: {
       flex: 1,
       alignSelf: 'center',
@@ -147,260 +147,261 @@ const Cart = ({ navigation, route }) => {
       marginHorizontal: 8,
       backgroundColor: '#ebebeb',
       borderRadius: 8,
-      height:178,width:255,
-      marginBottom:5,
+      height: 178, width: 255,
+      marginBottom: 5,
       flexDirection: 'column', // Added this line
     },
     itemImage: {
       width: 150,
       height: 115,
       marginBottom: 5,
-      marginTop:5,
+      marginTop: 5,
     },
-      textContainer: {
-        marginTop:5,
-        flexDirection: 'row',
-        alignItems: 'left',
-        flex: 1,
-      },
-      itemPrice:{
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginRight:24,
-        fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+    textContainer: {
+      marginTop: 5,
+      flexDirection: 'row',
+      alignItems: 'left',
+      flex: 1,
+    },
+    itemPrice: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginRight: 24,
+      fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
 
-        
-      },
-      itemText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        flex:1,
-        fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
-      },
-      itemContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between', // Added this line
-        paddingHorizontal: 10,
 
-      },
-      favoriteButton: {
-        marginLeft: 16,
-       
-      },
-      logoContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      logoImage: {
-        width: 150,
-        height:60,
-        alignItems:'center',
-      },
-      cartButton: {
-        position: 'absolute',
-        top: 5,
-        right: 1,
-        width: 30,
-        height: 30,
-        alignItems: 'led',
-        justifyContent: 'center',
-        backgroundColor: '#ebebeb',
-        borderRadius: 15,
-        zIndex: 1,
-      },
-      cartIcon: {
-        fontSize: 32,
-        color: '#000000',
-      },
-      orderButton: {
-        backgroundColor: '#ebebeb',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 8,
-        alignSelf: 'center',
-        marginBottom: 20
-      },
-      orderButtonText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+    },
+    itemText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      flex: 1,
+      fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+    },
+    itemContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between', // Added this line
+      paddingHorizontal: 10,
 
-      },
-    });
-    
-    const handleOrderNow = async () => {
-      if (cartItems.length > 0) {
-        const currentTime = new Date().toISOString();
-        const newOrder = {
-          customer_id: customerId,
-          destination_latitude: latitude,
-          destination_longitude: longitude,
-          items_ordered: dataids,
-          store_id: '2',
-          order_time: currentTime,
-        };
-        if (dataids.length > 0) {
-          try {
-            const response = await fetch(`${Own_URL}/order`, {
+    },
+    favoriteButton: {
+      marginLeft: 16,
+
+    },
+    logoContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    logoImage: {
+      width: 150,
+      height: 60,
+      alignItems: 'center',
+    },
+    cartButton: {
+      position: 'absolute',
+      top: 5,
+      right: 1,
+      width: 30,
+      height: 30,
+      alignItems: 'led',
+      justifyContent: 'center',
+      backgroundColor: '#ebebeb',
+      borderRadius: 15,
+      zIndex: 1,
+    },
+    cartIcon: {
+      fontSize: 32,
+      color: '#000000',
+    },
+    orderButton: {
+      backgroundColor: '#ebebeb',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderRadius: 8,
+      alignSelf: 'center',
+      marginBottom: 20
+    },
+    orderButtonText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+
+    },
+  });
+
+  const handleOrderNow = async () => {
+    if (cartItems.length > 0) {
+      const currentTime = new Date().toISOString();
+      const newOrder = {
+        customer_id: customerId,
+        destination_latitude: latitude,
+        destination_longitude: longitude,
+        items_ordered: dataids,
+        store_id: '2',
+        order_time: currentTime,
+      };
+      if (dataids.length > 0) {
+        try {
+          const response = await fetch(`${Own_URL}/order`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newOrder),
+          });
+          if (response.ok) {
+            const orderData = await response.json();
+            // Process the order data
+
+            const newCart = {
+              customer: customerId,
+              itemsincart: [],
+            };
+            const cartResponse = await fetch(`${Own_URL}/cart`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(newOrder),
+              body: JSON.stringify(newCart),
             });
-            if (response.ok) {
-              const orderData = await response.json();
-              // Process the order data
-    
-              const newCart = {
-                customer: customerId,
-                itemsincart: [],
-              };
-              const cartResponse = await fetch(`${Own_URL}/cart`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newCart),
-              });
-              if (cartResponse.ok) {
-                setCartItems(fetchCartItems ); // Clear the cart items
-              } else {
-                console.log('Failed to clear cart:', cartResponse.status);
-              }
+            if (cartResponse.ok) {
+              setCartItems(fetchCartItems); // Clear the cart items
             } else {
-              console.log('Failed to add order');
+              console.log('Failed to clear cart:', cartResponse.status);
             }
-          } catch (error) {
-            console.error('Error while adding order:', error);
+          } else {
+            console.log('Failed to add order');
           }
-        } else {
-          Alert.alert('Empty Cart', 'Please add items to your cart before placing an order.');
+        } catch (error) {
+          console.error('Error while adding order:', error);
         }
       } else {
         Alert.alert('Empty Cart', 'Please add items to your cart before placing an order.');
       }
-    };
-    
-  
-    
-    
-    
-
-
-
-
-  function renderSearch(){
-    return (
-        <View >
-      {renderLogo()}
-        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 }}>
-        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginRight: 2 }}>
-          <Image source={require('../assets/menu.png')} style={{ width: 24, height: 24,tintColor:"#000000" }} />
-        </TouchableOpacity>
-        <View 
-            style={{
-                flexDirection:'row',
-                height:50,
-                alignItems:'center',
-                marginHorizontal:24,
-                marginVertical:8,
-                paddingHorizontal:12,
-                borderRadius:12,
-                flex:1,
-                backgroundColor:'#ebebeb'
-            }}
-        >
-            <Image source={require("./../assets/search.png")}
-               style={{ width:20,height:20,tintColor:"#000000"
-               }}/>
-            <TextInput
-            style={{
-                flex:1,
-                marginLeft:12,  fontFamily: fontLoaded ? 'SweetRomane' : 'Arial', fontSize:18, lineHeight: 22
-
-
-
-            }} placeholder='   Find a product'/>
-
-</View>
-        </View>
-        </View>
-
-    )
-}
-
-const MyFlatList = () => {
-  const handleCartPress = React.useCallback(
-    (item) => {
-  
-      const removeCartItem = async () => {
-        try {
-          
-          const response = await fetch(`${Own_URL}/cart/remove_cart_item?customer=${customerId}&item=${item.item_id}`, {
-            method: 'POST',
-          });
-          if (response.ok) {
-            console.log('Item removed from cart:', item.id);
-            
-            // Update the cart items state by filtering out the removed item
-            const updatedCartItems = cartItems.filter((cartItem) => cartItem.item_id !== item.item_id);
-            setCartItems(updatedCartItems);
-          } else {
-            console.log('Failed to remove item from cart:', item.id);
-          }
-        } catch (error) {
-          console.log('Error while removing item from cart:', error);
-        }
-      };
-  
-      removeCartItem();
-    },
-    [cartItems, customerId]
-  );
-    
-  const handlePress = (item) => {
-    // Handle press action for a specific item
-    console.log('Pressed item:', item);
+    } else {
+      Alert.alert('Empty Cart', 'Please add items to your cart before placing an order.');
+    }
   };
 
-  
 
-  const renderItem = ({ item }) => (
-    <View style={[styles.itemContainer, { width: screenWidth - 40 }]}>
-    <View style={styles.itemContent}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Image source={imageMapper[item.picture1]} style={styles.itemImage} resizeMode="contain"  />
-        <Image source={imageMapper[item.picture2]} style={styles.itemImage} resizeMode="contain"  />
+
+
+
+
+
+
+
+  function renderSearch() {
+    return (
+      <View >
+        {renderLogo()}
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12 }}>
+          <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginRight: 2 }}>
+            <Image source={require('../assets/menu.png')} style={{ width: 24, height: 24, tintColor: "#000000" }} />
+          </TouchableOpacity>
+          <View
+            style={{
+              flexDirection: 'row',
+              height: 50,
+              alignItems: 'center',
+              marginHorizontal: 24,
+              marginVertical: 8,
+              paddingHorizontal: 12,
+              borderRadius: 12,
+              flex: 1,
+              backgroundColor: '#ebebeb'
+            }}
+          >
+            <Image source={require("./../assets/search.png")}
+              style={{
+                width: 20, height: 20, tintColor: "#000000"
+              }} />
+            <TextInput
+              style={{
+                flex: 1,
+                marginLeft: 12, fontFamily: fontLoaded ? 'SweetRomane' : 'Arial', fontSize: 18, lineHeight: 22
+
+
+
+              }} placeholder='   Find a product' />
+
+          </View>
         </View>
-        <View style={{ flexDirection: 'row', alignSelf:'right' ,paddingHorizontal:14 }}>
-        <TouchableOpacity style={styles.cartButton} onPress={() => handleCartPress(item)}>
-            <AntDesign name="close" style={styles.cartIcon} />
-          
-        </TouchableOpacity>
+      </View>
+
+    )
+  }
+
+  const MyFlatList = () => {
+    const handleCartPress = React.useCallback(
+      (item) => {
+
+        const removeCartItem = async () => {
+          try {
+
+            const response = await fetch(`${Own_URL}/cart/remove_cart_item?customer=${customerId}&item=${item.item_id}`, {
+              method: 'POST',
+            });
+            if (response.ok) {
+              console.log('Item removed from cart:', item.id);
+
+              // Update the cart items state by filtering out the removed item
+              const updatedCartItems = cartItems.filter((cartItem) => cartItem.item_id !== item.item_id);
+              setCartItems(updatedCartItems);
+            } else {
+              console.log('Failed to remove item from cart:', item.id);
+            }
+          } catch (error) {
+            console.log('Error while removing item from cart:', error);
+          }
+        };
+
+        removeCartItem();
+      },
+      [cartItems, customerId]
+    );
+
+    const handlePress = (item) => {
+      // Handle press action for a specific item
+      console.log('Pressed item:', item);
+    };
+
+
+
+    const renderItem = ({ item }) => (
+      <View style={[styles.itemContainer, { width: screenWidth - 40 }]}>
+        <View style={styles.itemContent}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Image source={imageMapper[item.picture1]} style={styles.itemImage} resizeMode="contain" />
+            <Image source={imageMapper[item.picture2]} style={styles.itemImage} resizeMode="contain" />
+          </View>
+          <View style={{ flexDirection: 'row', alignSelf: 'right', paddingHorizontal: 14 }}>
+            <TouchableOpacity style={styles.cartButton} onPress={() => handleCartPress(item)}>
+              <AntDesign name="close" style={styles.cartIcon} />
+
+            </TouchableOpacity>
+          </View>
         </View>
-        </View>
-        <View style={[styles.textContainer ]}>
-          <Text style={styles.itemText } >{item.description}</Text>
-          
+        <View style={[styles.textContainer]}>
+          <Text style={styles.itemText} >{item.description}</Text>
+
           <Text style={styles.itemPrice}>{item.price}<Text>₪</Text></Text>
         </View>
-      
+
       </View>
-  );
-return (
-  <FlatList
-  data={cartItems}
-  renderItem={renderItem}
-  numColumns={numColumns}
-  
-/>
-)
+    );
+    return (
+      <FlatList
+        data={cartItems}
+        renderItem={renderItem}
+        numColumns={numColumns}
 
-}
+      />
+    )
 
-const FlatListRef =React.useRef()
+  }
+
+  const FlatListRef = React.useRef()
 
   function renderLogo() {
     return (
@@ -412,29 +413,29 @@ const FlatListRef =React.useRef()
 
 
   return (
-    <ScrollView style={{ flex: 1,backgroundColor:'#ffffff' }}> 
-    <View style={{  
-      backgroundColor: '#FFFFFF', // Set the desired background color here
-      paddingTop:30
-    }}>
-     
-      {renderSearch()}
-      
-      <View   style={{  marginBottom: 20 }}>
-      <MyFlatList data={items}
-  renderItem={({ item }) => renderItem(item)}
-  numColumns={numColumns}/>
-    </View>
-    <TouchableOpacity style={styles.orderButton} onPress={() => handleOrderNow()}>
-      <Text style={styles.orderButtonText}>Order Now</Text>
-    </TouchableOpacity>
-    </View>
-</ScrollView>
-   
-    )
-    };
+    <ScrollView style={{ flex: 1, backgroundColor: '#ffffff' }}>
+      <View style={{
+        backgroundColor: '#FFFFFF', // Set the desired background color here
+        paddingTop: 30
+      }}>
 
-  
+        {renderSearch()}
 
-  export default Cart;
+        <View style={{ marginBottom: 20 }}>
+          <MyFlatList data={items}
+            renderItem={({ item }) => renderItem(item)}
+            numColumns={numColumns} />
+        </View>
+        <TouchableOpacity style={styles.orderButton} onPress={() => handleOrderNow()}>
+          <Text style={styles.orderButtonText}>Order Now</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+
+  )
+};
+
+
+
+export default Cart;
 

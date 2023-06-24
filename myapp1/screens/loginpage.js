@@ -15,12 +15,7 @@ import { connect } from 'react-redux';
 import { setSelectedTab } from '../stores/tab/tabActions';
 import { useNavigation } from '@react-navigation/native';
 import * as Font from 'expo-font';
-import CustomDrawer from '../navigation/CustomDrawer';
-import MainLayout from './MainLayout';
-
-import Signuppage from './signuppage';
 import {Own_URL, API_URL} from '../Variables'; 
-import { color } from 'react-native-reanimated';
 const loginpage = ({ setSelectedTab }) => {
   
   const navigation = useNavigation();
