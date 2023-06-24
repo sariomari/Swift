@@ -19,7 +19,7 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 export default class DeliveryMap extends React.Component {
     constructor(props) {
         super(props);
-
+        this.driver_id = 1;
         this.state = {
             task: null,
             taskActive: false,
@@ -53,7 +53,7 @@ export default class DeliveryMap extends React.Component {
                 },
                 channel: "location"
             });
-            const { driver_id } = "tamerdamouni";
+            const driver_id = this.driver_id;
             this.sendLocationToBackend(driver_id, this.props.latitude, this.props.longitude);
         }
     }
@@ -102,10 +102,13 @@ export default class DeliveryMap extends React.Component {
             }
         );
         // if a new task has arrived
-        // if (this.state.latitude == 51.515579 && this.state.longitude == -0.128360) {
-        //     this.assignTask("New Task Has Arrived!", "NY Madison Avenue", "One World Trade Center");
-        // }
-        this.assignTask("New Task Has Arrived!", "NY Madison Avenue", "One World Trade Center");
+        if (this.existsTask(this.driver_id)) {
+            this.assignTask("New Task Has Arrived!", "NY Madison Avenue", "One World Trade Center");
+        }
+    };
+
+    existsTask = (driver_id) => {
+        return true;
     };
 
     assignTask = (title, fromAddress, toAddress) => {
@@ -124,11 +127,11 @@ export default class DeliveryMap extends React.Component {
 
     finishTask = () => {
         // Send to backend that task is finished
-        this.setState({ task: null, taskActive: false})
+        this.setState({ task: null, taskActive: false })
     }
 
     sendLocationToBackend = (driver_id, latitude, longitude) => {
-        const url = 'http://127.0.0.1:8000/update_location'; // Replace with your backend URL
+        const url = 'http://127.0.0.1:8000/update_location';
         const data = {
             driver_id: driver_id,
             latitude,
@@ -188,10 +191,10 @@ export default class DeliveryMap extends React.Component {
                             }}
                             coordinate={this.state.coordinate}
                         >
-                            <MaterialCommunityIcons name="bike" size={23} color="white" backgroundColor="#3273a8" borderRadius="10" overflow="hidden"/>
+                            <MaterialCommunityIcons name="bike" size={23} color="white" backgroundColor="#3273a8" borderRadius="10" overflow="hidden" />
                         </Marker.Animated>
                     </MapView>
-                    {task && !taskActive &&(
+                    {task && !taskActive && (
                         <TaskScreen
                             title={task.title}
                             fromAddress={task.fromAddress}
@@ -207,7 +210,7 @@ export default class DeliveryMap extends React.Component {
                                 <Octicons name="tasklist" size={24} color="green" />
                                 <Text style={styles.taskTitle}>Active Task</Text>
                                 <TouchableOpacity style={styles.buttonContainer} onPress={this.finishTask}>
-                                    <Text style={{color: "white", fontWeight: "bold"}}>Complete Task</Text>
+                                    <Text style={{ color: "white", fontWeight: "bold" }}>Complete Task</Text>
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.iconWithText}>
@@ -218,19 +221,19 @@ export default class DeliveryMap extends React.Component {
                                 <Ionicons name="person-circle-outline" size={23} color="black" />
                                 <Text style={styles.taskAddress}>{task.toAddress}</Text>
                             </View>
-                            
-                            
+
+
                         </>
                     ) : (
                         <><View style={styles.infoContainer}>
                             <Text style={styles.infoText}>Delivery Area</Text>
                         </View>
-                        <View style={styles.infoContainer}>
-                            <Text style={styles.deliveringAreaText}>{deliveringArea}</Text>
-                        </View>
+                            <View style={styles.infoContainer}>
+                                <Text style={styles.deliveringAreaText}>{deliveringArea}</Text>
+                            </View>
                             <View style={styles.infoContainer}>
                                 <Text style={{ color: "gray", fontSize: 14, marginBottom: 4 }}>Demand: {demand}</Text>
-                        </View></>
+                            </View></>
                     )}
 
                 </View>
@@ -298,5 +301,5 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingTop: 10,
         paddingBotom: 10,
-      },
+    },
 });

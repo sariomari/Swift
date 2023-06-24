@@ -19,7 +19,7 @@ import CustomDrawer from '../navigation/CustomDrawer';
 import MainLayout from './MainLayout';
 
 import Signuppage from './signuppage';
-import {Own_URL} from '../Variables'; 
+import {Own_URL, API_URL} from '../Variables'; 
 import { color } from 'react-native-reanimated';
 const loginpage = ({ setSelectedTab }) => {
   
@@ -115,7 +115,7 @@ const loginpage = ({ setSelectedTab }) => {
   });
   const handleLogin = async () => {
     try {
-      const response = await fetch(`${Own_URL}/customer/login?username=${username}&password=${password}`
+      const response = await fetch(`${API_URL}/customer/login?username=${username}&password=${password}`
       , {
         method: 'GET',
       });

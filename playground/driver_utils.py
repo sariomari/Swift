@@ -1,5 +1,5 @@
 from playground.shared_data import CITY_INFORMATION_MAP
-from playground.models import Driver
+from playground.models import Driver, Customer, Store
 
 
 def update_driver_zone(driver_id, latitude, longitude):
@@ -55,12 +55,24 @@ def _is_in_Zone(lat, long, zone):
     return False
 
 
-def authorizeOrder(userID, userLocation, storeLocation, items):
+def authorizeOrder(user_id, userLocation, store_id, items):
     """ Check if store is open, user credit card is working
     and that there are delivery drivers to deliver
 
     """
-    pass
+    try:
+        Customer.objects.get(customer_id=user_id)
+    except Exception:
+        print("Customer not found")
+        return False
+    try:
+        Store.objects.get(store_id=store_id)
+    except Exception:
+        print("Store not found")
+        return False
+    return True
+        
+            
 
 
 def sendOrderNow(userID, user_location, store_location, items):
