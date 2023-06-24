@@ -19,7 +19,7 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 export default class DeliveryMap extends React.Component {
     constructor(props) {
         super(props);
-        this.driver_id = 1;
+
         this.state = {
             task: null,
             taskActive: false,
@@ -53,7 +53,7 @@ export default class DeliveryMap extends React.Component {
                 },
                 channel: "location"
             });
-            const driver_id = this.driver_id;
+            const { driver_id } = "tamerdamouni";
             this.sendLocationToBackend(driver_id, this.props.latitude, this.props.longitude);
         }
     }
@@ -102,13 +102,9 @@ export default class DeliveryMap extends React.Component {
             }
         );
         // if a new task has arrived
-        if (this.existsTask(this.driver_id)) {
+        if (this.state.latitude == 51.515579 && this.state.longitude == -0.128360) {
             this.assignTask("New Task Has Arrived!", "NY Madison Avenue", "One World Trade Center");
         }
-    };
-
-    existsTask = (driver_id) => {
-        return true;
     };
 
     assignTask = (title, fromAddress, toAddress) => {
@@ -131,7 +127,7 @@ export default class DeliveryMap extends React.Component {
     }
 
     sendLocationToBackend = (driver_id, latitude, longitude) => {
-        const url = 'http://127.0.0.1:8000/update_location';
+        const url = 'http://127.0.0.1:8000/update_location'; // Replace with your backend URL
         const data = {
             driver_id: driver_id,
             latitude,
