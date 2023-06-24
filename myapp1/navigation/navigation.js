@@ -14,6 +14,7 @@ import Profile from '../screens/Profile';
 import loginpage from '../screens/loginpage';
 import OrderDetails from '../screens/OrderDetails';
 import Signuppage from '../screens/signuppage';
+import Payment from '../screens/payment';
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
@@ -36,6 +37,7 @@ const AppNavigator = () => {
       <Stack.Screen name="Orders"  >{(props) => <Orders {...props} items={itemsData} />}</Stack.Screen>
       <Stack.Screen name="OrderDetails"  >{(props) => <OrderDetails {...props} items={itemsData} />}</Stack.Screen>
       <Stack.Screen name="loginpage" component={loginpage} />
+      <Stack.Screen name="Payment" component={Payment} />
 
       {/* ... other screens */}
     </Drawer.Navigator>

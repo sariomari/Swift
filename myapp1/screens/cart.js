@@ -230,6 +230,13 @@ const Cart = ({ navigation, route }) => {
     });
     
     const handleOrderNow = async () => {
+      console.log(dataids)
+
+      const firstItemId = dataids[0];  // Replace with your item id property
+      let storeIdResponse = await fetch(`${Own_URL}/item/get_store_by_item_id?item_id=${firstItemId}`);
+      let storeId = await storeIdResponse.text();
+      storeId = storeId.replace('Store ID: ', '');
+      console.log(firstItemId,storeId)
       if (cartItems.length > 0) {
         const currentTime = new Date().toISOString();
         const newOrder = {
@@ -237,7 +244,7 @@ const Cart = ({ navigation, route }) => {
           destination_latitude: latitude,
           destination_longitude: longitude,
           items_ordered: dataids,
-          store_id: '2',
+          store_id: storeId,
           order_time: currentTime,
         };
         if (dataids.length > 0) {
@@ -265,6 +272,8 @@ const Cart = ({ navigation, route }) => {
                 body: JSON.stringify(newCart),
               });
               if (cartResponse.ok) {
+                Alert.alert('Order Made!', 'You will have your items in no time , keep swifting ');
+
                 setCartItems(fetchCartItems ); // Clear the cart items
               } else {
                 console.log('Failed to clear cart:', cartResponse.status);

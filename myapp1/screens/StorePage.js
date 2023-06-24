@@ -315,7 +315,7 @@ const renderItem = ({ item }) => (
       <View style={[styles.textContainer ]}>
         <Text style={styles.itemText } >{item.description}</Text>
         
-        <Text style={styles.itemPrice}>{item.price}</Text>
+        <Text style={styles.itemPrice}>{item.price}₪</Text>
       </View>
     
     </View>

@@ -195,6 +195,7 @@ const styles = StyleSheet.create({
     navigation.navigate('StorePage', {  store_id: store_id,customerId:customerId});
   };
   const handleFavorite = (item) => {
+    
     if(newdata.includes(parseInt( item.id))){
       fetch(`${Own_URL}/customer`, {
         method: 'DELETE_F',
@@ -220,6 +221,8 @@ const styles = StyleSheet.create({
 
     }
     else{
+      console.log(item.id)
+
     fetch(`${Own_URL}/customer`, {
       method: 'PUT_F',
       headers: {

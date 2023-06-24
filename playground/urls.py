@@ -20,7 +20,9 @@ urlpatterns =[
     re_path(r'^order/current$', views.CurrentOrdersApi),
     re_path(r'^store/get_store_name$', views.get_store_name, name='get_store_name'),
     re_path(r'^cart/get_cart_id$', views.get_cart_id, name='get_cart_id'),
-
+    re_path(r'^check_tasks_for_driver$', views.check_tasks_for_driver, name='check_tasks_for_driver'),
+    re_path(r'^accept_task', views.accept_task, name='accept_task'),
+    re_path(r'^complete_task', views.complete_task, name='complete_task'),
     re_path(r'^order/get_orders_by_customer$', views.get_orders_by_customer, name='get_orders_by_customer'),
     re_path(r'^item/current$', views.CurrentItemStoreApi),
     re_path(r'^item/get_store_items$', views.get_store_items, name='get_store_items'),
@@ -28,9 +30,8 @@ urlpatterns =[
     re_path(r'item/get_item_data$', views.get_item_data, name='get_item_data'),
     re_path(r'cart/remove_cart_item$', views.remove_cart_item, name='remove_cart_item'),
     re_path(r'^update_location$', views.update_location),
-    re_path(r'^create_task$', views.create_task),
-    re_path(r'^create_task/([A-Za-z0-9]+)$', views.create_task),
     re_path(r'^driver$', views.DriverApi),
+    re_path(r'^item/get_store_by_item_id$', views.get_store_by_item_id, name='get_store_by_item_id'),
     re_path(r'^driver/([0-9]+)$', views.DriverApi),
     #url(r'^customer$',views.CustomerApi),
     #url(r'^customer/([0-9]+)$',views.CustomerApi)

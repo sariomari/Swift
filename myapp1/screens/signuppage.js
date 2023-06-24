@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
       height: 40,
       borderWidth: 1,
       borderColor: '#ccc',
-      borderRadius: 4,
+      borderRadius: 25,
       paddingHorizontal: 10,
       marginBottom: 16,
       fontFamily: fontLoaded ? 'Formalf' : 'Arial',
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     button: {
       backgroundColor: '#e66100',
       paddingVertical: 12,
-      borderRadius: 4,
+      borderRadius: 25,
     },
     buttonText: {
       color: '#fff',
@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
       fontSize: 16,
       color: '#e66100',
       marginLeft: 5,
+      
       fontFamily: fontLoaded ? 'Formalf' : 'Arial',
     },
   });

@@ -62,7 +62,7 @@ const loginpage = ({ setSelectedTab }) => {
       height: 50,
       borderWidth: 1,
       borderColor: '#ccc',
-      borderRadius: 4,
+      borderRadius: 25,
       paddingHorizontal: 10,
       marginBottom: 10,
       fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
@@ -83,33 +83,50 @@ const loginpage = ({ setSelectedTab }) => {
       paddingHorizontal: 20,
       fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
     },
-    signupButtonText: {
+    signupButton: {
+      backgroundColor: '#e66100',
+      borderRadius: 20,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+      elevation: 2, // for android
+      shadowColor: '#000', // for ios
+      shadowOffset: { width: 0, height: 2 }, // for ios
+      shadowOpacity: 0.8, // for ios
+      shadowRadius: 2, // for ios
+    },
+    loginButton: {
+      backgroundColor: '#ebebeb',
+      borderRadius: 20,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+      paddingBottom:10,
+      elevation: 2, // for android
+      shadowColor: '#000', // for ios
+      shadowOffset: { width: 0, height: 2 }, // for ios
+      shadowOpacity: 0.8, // for ios
+      shadowRadius: 2, // for ios
+    },
+    loginButtonText: {
       color: '#e66100',
       fontWeight: 'bold',
       textAlign: 'center',
       fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
       fontSize:24
     },
-    loginButton: {
-      backgroundColor: '#ffffff',
-      borderRadius: 4,
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-      fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
-      paddingBottom:90
-    },
-    loginButtonText: {
-      color: '#000000',
-      fontWeight: 'bold',
-      textAlign: 'center',
-      fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
-      fontSize:32
-    },
     signupText: {
       marginRight: 5,
       fontFamily: fontLoaded ? 'Formalf' : 'Arial',
       fontSize:24,
       
+    },
+    signupButtonText: {
+      color: '#ffffff',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+      fontSize:12
     },
 
   });

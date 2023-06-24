@@ -243,7 +243,7 @@ const MyFlatList = () => {
   
     const handlePress = (item) => {
         // Handle press action for a specific item
-        navigation.navigate('OrderDetails', { orderId: item.id }); // Pass orderId and itemsList as parameters // Navigates to OrderDetails page with orderId as a parameter
+        //navigation.navigate('OrderDetails', { orderId: item.id }); // Pass orderId and itemsList as parameters // Navigates to OrderDetails page with orderId as a parameter
       };
       const [storeName, setStoreName] = useState('');
 
@@ -255,11 +255,12 @@ const MyFlatList = () => {
         const hoursDifference = timeDifference / (1000 * 60 * 60);
         
         if (hoursDifference < 24) {
-          Alert.alert('Eligible for Return', 'This order is eligible for return.', [
+          Alert.alert('Eligible for Return', 'You need to pay a delivery fee of 25₪ , The card you are using would be charged with the fee.', [
          
           {
             text: 'Return',
             onPress: () => {
+              Alert.alert('We are already working on it ', 'A currier is coming to take the order and to return it.', [{ text: 'OK' }]);
               // Handle Return button press
             },
           },

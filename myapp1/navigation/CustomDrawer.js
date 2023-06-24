@@ -21,7 +21,7 @@ import { useFonts } from 'expo-font';
 import { AppLoading } from 'expo';
 import * as Font from 'expo-font';
 import {Own_URL} from '../Variables'; 
-
+import Payment from '../screens/payment';
 const storeItems = [
   { id: '1', name: 'Slim Fit Trousers', image: require('./../assets/nike.png'), price: '$29.99' },
   { id: '2', name: 'Straight Leg Pants', image: require('./../assets/nike.png'), price: '$39.99' },
@@ -237,6 +237,15 @@ const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab,firstname
             }}>
           </View>
           <CustomDrawerItem
+            label={"Payment method"}
+            icon={require("./../assets/card.png")}
+            isFocused={selectedTab == "Payment method"}
+            onPress={() => {
+              setSelectedTab("Payment")
+              navigation.navigate("Payment")
+            }}
+          />
+          <CustomDrawerItem
             label={"Invite A friend"}
             icon={require("./../assets/profile.png")}
             isFocused={selectedTab == "Invite A friend"}
@@ -363,6 +372,7 @@ const CustomDrawer = ({ selectedTab, setSelectedTab,route }) => {
         <Drawer.Screen name="Invite" options={{ headerShown: false }} component={Invite} />
         <Drawer.Screen name="Orders" options={{ headerShown: false }} component={Orders} />
         <Drawer.Screen name="OrderDetails" options={{ headerShown: false }} component={OrderDetails} />
+        <Drawer.Screen name="Payment" options={{ headerShown: false }} component={Payment} />
 
         <Drawer.Screen name="Profile" options={{ headerShown: false }} component={Profile} />
 
