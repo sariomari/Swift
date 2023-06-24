@@ -67,7 +67,11 @@ class Task(models.Model):
     task_id = models.AutoField(primary_key=True)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
     driver_id = models.ForeignKey(
-        Driver, on_delete=models.CASCADE, default=None)
+        Driver, on_delete=models.CASCADE, default=None, null=True)
     order_id = models.ForeignKey(Order, on_delete=models.CASCADE)
+    fromAddress = models.CharField(max_length=100, default='')
+    toAddress = models.CharField(max_length=100, default='')
     active = models.BooleanField(default=False)
+    zone = models.CharField(max_length=100, default='')
+    completed = models.BooleanField(default=False)
     timestamp = models.TimeField(auto_now_add=True)

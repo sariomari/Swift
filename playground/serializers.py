@@ -41,4 +41,4 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ('task_id', 'store_id', 'driver_id',
-                  'order_id', 'active', 'timestamp')
+                  'order_id','fromAddress', 'toAddress', 'active', 'zone', 'completed', 'timestamp')

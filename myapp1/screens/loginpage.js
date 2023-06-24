@@ -15,12 +15,7 @@ import { connect } from 'react-redux';
 import { setSelectedTab } from '../stores/tab/tabActions';
 import { useNavigation } from '@react-navigation/native';
 import * as Font from 'expo-font';
-import CustomDrawer from '../navigation/CustomDrawer';
-import MainLayout from './MainLayout';
-
-import Signuppage from './signuppage';
-import {Own_URL} from '../Variables'; 
-import { color } from 'react-native-reanimated';
+import {Own_URL, API_URL} from '../Variables'; 
 const loginpage = ({ setSelectedTab }) => {
   
   const navigation = useNavigation();
@@ -132,7 +127,7 @@ const loginpage = ({ setSelectedTab }) => {
   });
   const handleLogin = async () => {
     try {
-      const response = await fetch(`${Own_URL}/customer/login?username=${username}&password=${password}`
+      const response = await fetch(`${API_URL}/customer/login?username=${username}&password=${password}`
       , {
         method: 'GET',
       });

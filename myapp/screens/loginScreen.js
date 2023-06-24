@@ -7,7 +7,7 @@ export default function LoginScrn({ navigation: { navigate } }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const login = () => {
-    if (email == "Cox" && password == "Cox") {
+    if (email == "Sari" && password == "1") {
       navigate("Drawer")
     }
   };

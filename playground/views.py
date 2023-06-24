@@ -207,21 +207,11 @@ def ItemApi(request, id=0):
     elif request.method == 'DELETE':
         item = Item.objects.get(item_id=id)
         item.delete()
-        return JsonResponse("Deleted Successfully", safe=False)
-
+        return JsonResponse("Deleted Successfully",safe=False)
+    
 @csrf_exempt 
-def get_store_by_item_id(request):
-    try:
-        item_id = request.GET.get('item_id')    
-        item = Item.objects.get(item_id=item_id)
-        return HttpResponse(f"Store ID: {item.store_id}")
-    except Item.DoesNotExist:
-        return HttpResponse("Item not found", status=404)
-
-
-@csrf_exempt
-def CartApi(request, id=0):
-    if request.method == 'GET' and id == 0:
+def CartApi(request,id=0):
+    if request.method=='GET' and id==0:
         carts = Cart.objects.all()
         cart_serializer = CartSerializer(carts, many=True)
         return JsonResponse(cart_serializer.data, safe=False)
@@ -473,72 +463,3 @@ def get_store_name(request):
         return JsonResponse({'error': 'Store not found'})
     except Exception as e:
         return JsonResponse({'error': str(e)})
-
-
-@csrf_exempt
-def accept_task(request):
-    '''Task was accepted by the driver'''
-    if request.method == 'POST':
-        task_data = json.loads(request.body)
-        print("Task data:", task_data)
-        task_id, driver_id = task_data['task_id'], task_data['driver_id']
-        latitude, longitude = task_data['latitude'], task_data['longitude']
-        driver_zone = get_zone_from_lat_long(latitude, longitude)
-        print("im here")
-        driver_obj = Driver.objects.get(driver_id=driver_id)
-        task_obj = Task.objects.get(task_id=task_id)
-        Task.objects.filter(task_id=task_id).update(driver_id=driver_obj)
-
-        task_manager = get_task_manager()
-        print(task_manager)
-        task_manager["TLV"][driver_zone].remove(task_obj)
-        cache.set('task_manager', task_manager)
-        return HttpResponse('Task was successfully accepted')
-    else:
-        return HttpResponse('Invalid request method')
-
-
-@csrf_exempt
-def complete_task(request):
-    if request.method == 'DELETE':
-        task_data = json.loads(request.body)
-        print(task_data)
-        task_id = task_data['task_id']
-        print(task_id)
-        task_obj = Task.objects.get(task_id=task_id)
-        print(task_obj)
-        task_zone = task_obj.zone
-        Task.objects.filter(task_id=task_id).update(
-            completed=True
-        )
-        return HttpResponse('Task completed')
-    else:
-        return HttpResponse('Invalid request method')
-
-
-@csrf_exempt
-def check_tasks_for_driver(request):
-    if request.method == 'GET':
-        latitude = request.GET.get('latitude')
-        longitude = request.GET.get('longitude')
-        driver_zone = get_zone_from_lat_long(latitude, longitude)
-        task_manager = get_task_manager()
-        print("TASK MANAGER: ", task_manager)
-        print("DRIVER ZONE:", driver_zone)
-        tasks_in_driver_zone = task_manager["TLV"][driver_zone]
-        print("TASKS", tasks_in_driver_zone)
-        if (len(tasks_in_driver_zone) > 0):
-            print("THERE ARE TASKS")
-            task = tasks_in_driver_zone.pop()
-            tasks_in_driver_zone.add(task)
-            cache.set("task_manager", task_manager)
-            print(task.task_id, task.fromAddress)
-            return JsonResponse({
-                "task_id": task.task_id,
-                "fromAddress": task.fromAddress,
-                "toAddress": task.toAddress,
-            })
-        print("NO TASKS")
-        return HttpResponse("No Tasks")
-    return HttpResponse("invalid request method")
-

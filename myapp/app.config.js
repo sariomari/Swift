@@ -2,6 +2,11 @@ import 'dotenv/config';
 
 export default {
   "expo": {
+    "packagerOpts": {
+      "config": {
+        "watchFolders": []
+      }
+    },
     "plugins": [
       [
         "expo-location",

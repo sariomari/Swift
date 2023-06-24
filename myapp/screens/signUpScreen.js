@@ -1,18 +1,112 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import LoginScrn from './loginScreen';
 
 export default function SignUpScrn() {
+    const [firstname, setfirstname] = useState("");
+    const [lastname, setlastname] = useState("");
+    const [username, setusername] = useState("");
+    const [area, setarea] = useState("")
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [verified_password, setVerifiedPassword] = useState("");
+    
+    const handleSignup = async () => {
+      if (
+        
+        firstname &&
+        lastname &&
+        username &&
+        area &&
+        password &&
+        verified_password == password &&
+        email 
+      ) {
+        try {
+          const response = await fetch(`http://127.0.0.1:8000/driver`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              driver_id:1,
+              first_name: firstname,
+              last_name: lastname,
+              driver_username: username,
+              driver_password: password,
+              email: email,
+              latitude: 32.123456,
+              longitude: 31.222141,
+              area: area,
+              zone: 1
+            }),
+          });
+    
+          if (!response.ok) {
+            throw new Error('HTTP status ' + response.status);
+          }
+    
+          const data = await response.json();
+    
+          if (data === 'Added Successfully') {
+            navigation.navigate('LoginScrn');
+            Alert.alert('Welcome To Swift ! ', 'Please login to continue');
+          } else {
+            Alert.alert('Error', data);
+          }
+        } catch (error) {
+          Alert.alert('Error', 'Failed to connect to server');
+        }
+      } else {
+        Alert.alert('Error', 'Please fill in all fields');
+      }
+    };
 
     return (
+      <ScrollView>
       <View style={styles.container}>
         <View style={styles.logo}>
           <Image style={styles.image} source = {require("./../assets/logo.jpeg")}/>
         </View>
         <Text style={styles.title}> Create an account</Text>
+       
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.TextInput}
+            placeholder="First Name"
+            placeholderTextColor="#003f5c"
+            secureTextEntry={false}
+            onChangeText={(firstname) => setfirstname(firstname)}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.TextInput}
+            placeholder="Last Name"
+            placeholderTextColor="#003f5c"
+            secureTextEntry={false}
+            onChangeText={(lastname) => setlastname(lastname)}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.TextInput}
+            placeholder="Username"
+            placeholderTextColor="#003f5c"
+            secureTextEntry={false}
+            onChangeText={(username) => setusername(username)}
+          />
+        </View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.TextInput}
+            placeholder="Area"
+            placeholderTextColor="#003f5c"
+            secureTextEntry={false}
+            onChangeText={(area) => setarea(area)}
+          />
+        </View>
         <View style={styles.inputView}>
           <TextInput
             style={styles.TextInput}
@@ -37,7 +131,7 @@ export default function SignUpScrn() {
             placeholder="Verify Password"
             placeholderTextColor="#003f5c"
             secureTextEntry={true}
-            onChangeText={(verified_password) => setVerifiedPassword(password)}
+            onChangeText={(verified_password) => setVerifiedPassword(verified_password)}
           />
         </View>
         <TouchableOpacity style={styles.signUpButton}>
@@ -45,6 +139,7 @@ export default function SignUpScrn() {
         </TouchableOpacity>
         <StatusBar style="auto" />
       </View>
+      </ScrollView>
     );
   }
   
@@ -74,7 +169,7 @@ export default function SignUpScrn() {
       width: "70%",
       height: 45,
       marginBottom: 20,
-      alignItems: "center",
+      alignItems: "left",
     },
     TextInput: {
       height: 50,
@@ -100,4 +195,5 @@ export default function SignUpScrn() {
         paddingTop: 10,
     },
   });
+  
   
