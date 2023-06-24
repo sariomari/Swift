@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Customer(models.Model):
@@ -36,7 +37,7 @@ class Item(models.Model):
 
 class Cart(models.Model):
     cart_id = models.AutoField(primary_key=True)
-    customer = models.OneToOneField(Customer, on_delete=models.CASCADE)
+    customer  = models.OneToOneField(Customer, on_delete=models.CASCADE)
     itemsincart = models.ManyToManyField(Item)
 
 class Order(models.Model):
@@ -46,6 +47,7 @@ class Order(models.Model):
     destination_longitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0)
     items_ordered = models.ManyToManyField(Item)
     store_id = models.ForeignKey(Store, on_delete=models.CASCADE)
+    order_time = models.DateTimeField(default=timezone.now)
 
 
 class Driver(models.Model):

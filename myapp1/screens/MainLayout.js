@@ -24,6 +24,7 @@ import { TextInput } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
 import CustomDrawer from '../navigation/CustomDrawer';
 import * as Font from 'expo-font';
+import favorites from './favorites';
 const screenWidth = Dimensions.get('window').width;
 const MainLayout = ({drawerAnimationStyle,selectedTab,setSelectedTab,route,customerData,...props}) => {
   const {
@@ -37,7 +38,8 @@ const MainLayout = ({drawerAnimationStyle,selectedTab,setSelectedTab,route,custo
     latitude = customerData?.latitude,
     longitude = customerData?.longitude
   } = route.params || {};
-
+  const [newdata, setNewdata] = useState([]);
+  useEffect(() => {
   fetch(`${Own_URL}/customer/${customerId}`, {
     method: 'FAVORITE_STORES',
     headers: {
@@ -47,6 +49,9 @@ const MainLayout = ({drawerAnimationStyle,selectedTab,setSelectedTab,route,custo
     .then((response) => response.json())
     .then((data) => {
       favorite_stores=data
+      newData=data.map(store => store.store_id);
+      setNewdata(newData);
+      
       // Process the returned data
       // Update your React Native component state or perform other actions
     })
@@ -54,8 +59,7 @@ const MainLayout = ({drawerAnimationStyle,selectedTab,setSelectedTab,route,custo
       console.error(error);
       // Handle any error that occurs during the request
     });
-
-   
+  }, []);
 
 
   const [fontLoaded, setFontLoaded] = React.useState(false);
@@ -81,14 +85,7 @@ const MainLayout = ({drawerAnimationStyle,selectedTab,setSelectedTab,route,custo
           </View>
         );
       }
-
-      const storeItems = [
-        { id: '1', name: 'Slim Fit Trousers', image: require('./../assets/nike.png'), price: '$29.99' },
-        { id: '2', name: 'Straight Leg Pants', image: require('./../assets/nike.png'), price: '$39.99' },
-        { id: '3', name: 'Wide-Leg Trousers', image: require('./../assets/nike.png'), price: '$34.99' },
-        { id: '4', name: 'High-Waisted Pants', image: require('./../assets/nike.png'), price: '$44.99' },
-        // Add more items as needed
-      ];
+   
       const [data, setData] = useState([]);
 
     useEffect(() => {
@@ -126,7 +123,8 @@ const MainLayout = ({drawerAnimationStyle,selectedTab,setSelectedTab,route,custo
 const [menuList, setMenuList] = React.useState(data);
 const [filteredData, setFilteredData] = React.useState(data);
 
-const [isFavorite, setIsFavorite] = React.useState(false);
+
+const [favorites, setFavorites] = useState([]);
 
 const numColumns = 2;
 const screenWidth = Dimensions.get('window').width;
@@ -194,30 +192,68 @@ const styles = StyleSheet.create({
     store_id = item.id 
 
 
-
     navigation.navigate('StorePage', {  store_id: store_id,customerId:customerId});
   };
   const handleFavorite = (item) => {
-    
-    const updatedData = filteredData.map((dataItem) => {
-        
-      if (dataItem.id === item.id) {
-        return { ...dataItem, isFavorite: !dataItem.isFavorite };
-      }
-      return dataItem;
-    });
-   
-    setMenuList(updatedData);
+    if(newdata.includes(parseInt( item.id))){
+      fetch(`${Own_URL}/customer`, {
+        method: 'DELETE_F',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customer_id: customerId,
+          store_id:parseInt( item.id),
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          const updatedFavorites = newdata.filter(id => id !== parseInt( item.id));
+          setNewdata(updatedFavorites);
+          // Handle the response data
+        })
+        .catch(error => {
+          // Handle any errors
+          console.error(error);
+        });
+
+
+    }
+    else{
+    fetch(`${Own_URL}/customer`, {
+      method: 'PUT_F',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        customer_id: customerId,
+        store_id:parseInt( item.id),
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        const updatedFavorites = [...newdata, parseInt( item.id)];
+        setNewdata(updatedFavorites);
+        // Handle the response data
+      })
+      .catch(error => {
+        // Handle any errors
+        console.error(error);
+      });
+
+    }
   };
+
     // Render each item in the list
     const renderItem = ({ item }) => (
+      
         <TouchableOpacity onPress={() => handlePress(item)}>
         <View style={[styles.itemContainer, { width: (screenWidth/2 )-16}]}>
             <Image source={item.image} style={styles.itemImage} resizeMode="contain"/>
             <View style={styles.itemContent}>
             <Text style={styles.itemText}>{item.title}</Text>
             <TouchableOpacity onPress={() => handleFavorite(item)} style={styles.favoriteButton}>
-  {item.isFavorite ? (
+  {newdata.includes(parseInt( item.id)) ? (
     <AntDesign name="heart" size={23} color="black" />
   ) : (
     <AntDesign name="hearto" size={23} color="black" />
@@ -232,6 +268,7 @@ const styles = StyleSheet.create({
     return (
         <FlatList
         data={filteredData}
+        newdata={newdata}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         numColumns={numColumns}

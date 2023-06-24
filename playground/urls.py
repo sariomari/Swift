@@ -18,6 +18,11 @@ urlpatterns =[
     re_path(r'^order$', views.OrderApi),
     re_path(r'^order/([0-9]+)$', views.OrderApi),
     re_path(r'^order/current$', views.CurrentOrdersApi),
+    re_path(r'^store/get_store_name$', views.get_store_name, name='get_store_name'),
+    re_path(r'^cart/get_cart_id$', views.get_cart_id, name='get_cart_id'),
+
+    re_path(r'^order/get_orders_by_customer$', views.get_orders_by_customer, name='get_orders_by_customer'),
+    re_path(r'^item/current$', views.CurrentItemStoreApi),
     re_path(r'^item/get_store_items$', views.get_store_items, name='get_store_items'),
     re_path(r'cart/get_cart_items$', views.get_cart_items, name='get_cart_items'),
     re_path(r'item/get_item_data$', views.get_item_data, name='get_item_data'),

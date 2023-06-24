@@ -8,7 +8,8 @@ import {
     FlatList,
     Dimensions,
     StyleSheet,
-    Button 
+    Button ,
+    ScrollView
 } from 'react-native';
 import Animated,{useSharedValue ,useAnimatedStyle,withTiming}from 'react-native-reanimated';
 import { connect } from 'react-redux';
@@ -16,6 +17,9 @@ import { setSelectedTab } from '../stores/tab/tabActions';
 import  {Horizontalcards}from "../components"
 import { useNavigation } from '@react-navigation/native';
 import { Header } from '../components';
+import { Alert } from 'react-native';
+import { PermissionsAndroid, Geolocation } from 'react-native';
+
 import { TextInput } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
 import { Own_URL } from '../Variables';
@@ -83,10 +87,11 @@ const Cart = ({ navigation, route }) => {
 
 
 
-  
+  const [currentlatitude, setcurrentlatitude] = useState(null);
+  const [currentlongitude, setcurrentlongitude] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const screenWidth = Dimensions.get('window').width;
-
+  const[dataids,setdataids] = useState([]);
   const items=[]
   useEffect(() => {
     fetchCartItems();
@@ -98,7 +103,7 @@ const Cart = ({ navigation, route }) => {
       if (response.ok) {
         const data = await response.json();
         const items = data.cart_items;
-
+        setdataids(items)
         const itemDataPromises = items.map(async (item) => {
           const itemResponse = await fetch(`${Own_URL}/item/get_item_data?item_id=${item}`);
           if (itemResponse.ok) {
@@ -219,12 +224,66 @@ const Cart = ({ navigation, route }) => {
       orderButtonText: {
         fontSize: 18,
         fontWeight: 'bold',
+        fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+
       },
     });
     
+    const handleOrderNow = async () => {
+      if (cartItems.length > 0) {
+        const currentTime = new Date().toISOString();
+        const newOrder = {
+          customer_id: customerId,
+          destination_latitude: latitude,
+          destination_longitude: longitude,
+          items_ordered: dataids,
+          store_id: '2',
+          order_time: currentTime,
+        };
+        if (dataids.length > 0) {
+          try {
+            const response = await fetch(`${Own_URL}/order`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(newOrder),
+            });
+            if (response.ok) {
+              const orderData = await response.json();
+              // Process the order data
     
+              const newCart = {
+                customer: customerId,
+                itemsincart: [],
+              };
+              const cartResponse = await fetch(`${Own_URL}/cart`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newCart),
+              });
+              if (cartResponse.ok) {
+                setCartItems(fetchCartItems ); // Clear the cart items
+              } else {
+                console.log('Failed to clear cart:', cartResponse.status);
+              }
+            } else {
+              console.log('Failed to add order');
+            }
+          } catch (error) {
+            console.error('Error while adding order:', error);
+          }
+        } else {
+          Alert.alert('Empty Cart', 'Please add items to your cart before placing an order.');
+        }
+      } else {
+        Alert.alert('Empty Cart', 'Please add items to your cart before placing an order.');
+      }
+    };
     
-    
+  
     
     
     
@@ -271,36 +330,36 @@ const Cart = ({ navigation, route }) => {
 
     )
 }
-const handleCartPress = React.useCallback(
-  (item) => {
 
-    const removeCartItem = async () => {
-      try {
-        
-        const response = await fetch(`${Own_URL}/cart/remove_cart_item?customer=${customerId}&item=${item.item_id}`, {
-          method: 'POST',
-        });
-        if (response.ok) {
-          console.log('Item removed from cart:', item.id);
-          
-          // Update the cart items state by filtering out the removed item
-          const updatedCartItems = cartItems.filter((cartItem) => cartItem.item_id !== item.item_id);
-          setCartItems(updatedCartItems);
-        } else {
-          console.log('Failed to remove item from cart:', item.id);
-        }
-      } catch (error) {
-        console.log('Error while removing item from cart:', error);
-      }
-    };
-
-    removeCartItem();
-  },
-  [cartItems, customerId]
-);
-  
 const MyFlatList = () => {
+  const handleCartPress = React.useCallback(
+    (item) => {
   
+      const removeCartItem = async () => {
+        try {
+          
+          const response = await fetch(`${Own_URL}/cart/remove_cart_item?customer=${customerId}&item=${item.item_id}`, {
+            method: 'POST',
+          });
+          if (response.ok) {
+            console.log('Item removed from cart:', item.id);
+            
+            // Update the cart items state by filtering out the removed item
+            const updatedCartItems = cartItems.filter((cartItem) => cartItem.item_id !== item.item_id);
+            setCartItems(updatedCartItems);
+          } else {
+            console.log('Failed to remove item from cart:', item.id);
+          }
+        } catch (error) {
+          console.log('Error while removing item from cart:', error);
+        }
+      };
+  
+      removeCartItem();
+    },
+    [cartItems, customerId]
+  );
+    
   const handlePress = (item) => {
     // Handle press action for a specific item
     console.log('Pressed item:', item);
@@ -317,7 +376,7 @@ const MyFlatList = () => {
         </View>
         <View style={{ flexDirection: 'row', alignSelf:'right' ,paddingHorizontal:14 }}>
         <TouchableOpacity style={styles.cartButton} onPress={() => handleCartPress(item)}>
-            <AntDesign name="check" style={styles.cartIcon} />
+            <AntDesign name="close" style={styles.cartIcon} />
           
         </TouchableOpacity>
         </View>
@@ -325,7 +384,7 @@ const MyFlatList = () => {
         <View style={[styles.textContainer ]}>
           <Text style={styles.itemText } >{item.description}</Text>
           
-          <Text style={styles.itemPrice}>{item.price}</Text>
+          <Text style={styles.itemPrice}>{item.price}<Text>₪</Text></Text>
         </View>
       
       </View>
@@ -353,7 +412,8 @@ const FlatListRef =React.useRef()
 
 
   return (
-    <View style={{  flex: 1,
+    <ScrollView style={{ flex: 1,backgroundColor:'#ffffff' }}> 
+    <View style={{  
       backgroundColor: '#FFFFFF', // Set the desired background color here
       paddingTop:30
     }}>
@@ -365,16 +425,16 @@ const FlatListRef =React.useRef()
   renderItem={({ item }) => renderItem(item)}
   numColumns={numColumns}/>
     </View>
-    <TouchableOpacity style={styles.orderButton}>
+    <TouchableOpacity style={styles.orderButton} onPress={() => handleOrderNow()}>
       <Text style={styles.orderButtonText}>Order Now</Text>
     </TouchableOpacity>
     </View>
-
+</ScrollView>
    
     )
     };
 
-
+  
 
   export default Cart;
 

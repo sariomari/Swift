@@ -7,11 +7,15 @@ from django.core import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from django.utils import timezone
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from playground.models import Customer,Store,Item,Order,Driver,Cart
 from playground.serializers import CustomerSerializer ,StoreSerializer,ItemSerializer,OrderSerializer,CartSerializer,DriverSerializer
 from django.core.files.storage import default_storage
 from django.contrib.auth import authenticate, login
 from django.views.decorators.http import require_POST
+import json
 
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 
@@ -53,7 +57,6 @@ def get_store_items(request):
         try:
             items = Item.objects.filter(store_id=store_id)
             serializer = ItemSerializer(items, many=True)
-            print(serializer.data) 
             return JsonResponse({'items': serializer.data})
         except Item.DoesNotExist:
             return JsonResponse({'error': 'Store not found'}, status=404)
@@ -113,6 +116,20 @@ def CustomerApi(request,id=0):
             if 0 <= store_id <= 8:  # Checking if store_id is within the valid range
                 customer.favorite_stores.add(store)
                 return JsonResponse("Update Successfully", safe=False)
+            else:
+                return JsonResponse("Invalid store_id", status=400)
+        else:
+            return JsonResponse("Customer or store not found",status=404)
+    elif request.method == 'DELETE_F':
+        fav_data = JSONParser().parse(request)
+        customer_id = fav_data['customer_id']
+        store_id = fav_data['store_id']
+        customer = Customer.objects.filter(customer_id=customer_id).first()
+        store = Store.objects.filter(store_id=store_id).first()
+        if customer and store:
+            if 0 <= store_id <= 8:  # Checking if store_id is within the valid range
+                customer.favorite_stores.remove(store)
+                return JsonResponse("Deleted store Successfully", safe=False)
             else:
                 return JsonResponse("Invalid store_id", status=400)
         else:
@@ -214,27 +231,29 @@ def CartApi(request,id=0):
         cart_serializer=CartSerializer(carts,many=True)
         return JsonResponse(cart_serializer.data,safe=False)
     elif request.method == 'POST':
-        cart_data = JSONParser().parse(request)
-        customer_id = cart_data.pop('customer')
-        item_ids = cart_data.pop('itemsincart')
+        cart_data = json.loads(request.body)
+        customer_id = cart_data.get('customer')
+        itemsincart_ids = cart_data.get('itemsincart', [])
 
         try:
             customer = Customer.objects.get(customer_id=customer_id)
-            items = Item.objects.filter(item_id__in=item_ids)
-            cart_serializer = CartSerializer(data=cart_data)
+            cart, created = Cart.objects.get_or_create(customer=customer)
 
-            if cart_serializer.is_valid():
-                cart = cart_serializer.save(customer=customer)
-                cart.itemsincart.set(items)
-                return JsonResponse("Added Successfully", safe=False)
+            # Update the items in the existing cart
+            itemsincart = Item.objects.filter(item_id__in=itemsincart_ids)
+            cart.itemsincart.set(itemsincart)
+
+            if created:
+                return JsonResponse("Cart Created Successfully", status=201,safe=False)
             else:
-                return JsonResponse(cart_serializer.errors, status=400)
+                return JsonResponse("Cart Updated Successfully", status=200,safe=False)
 
         except Customer.DoesNotExist:
             return JsonResponse("Customer not found", status=404)
 
-        except Item.DoesNotExist:
-            return JsonResponse("One or more items not found", status=404)
+        except Cart.DoesNotExist:
+            return JsonResponse("Cart not found", status=404)
+
     elif request.method == 'PUT':
         cart_data = JSONParser().parse(request)
         cart = Cart.objects.get(cart_id=cart_data['cart_id'])
@@ -247,6 +266,38 @@ def CartApi(request,id=0):
         cart = Cart.objects.get(cart_id=id)
         cart.delete()
         return JsonResponse("Deleted Successfully", safe=False)
+    elif request.method=='ADD_I':
+        all_data=JSONParser().parse(request)
+        customer=Customer.objects.get(customer_id=all_data['customer_id'])
+        cart=Cart.objects.get(cart_id=all_data['cart_id'])
+        item=Item.objects.get(item_id=all_data['item_id'])
+        if customer:
+            if cart:
+                if item:
+                    cart.itemsincart.add(item)
+                    return JsonResponse("Update Successfully", safe=False)
+                else:
+                    return JsonResponse("no item found",safe=False)
+            else:
+                 return JsonResponse("no store found",safe=False)   
+        else:
+            return JsonResponse("no customer found",safe=False)    
+    elif request.method=='DELETE_I':
+        all_data=JSONParser().parse(request)
+        customer=Customer.objects.get(customer_id=all_data['customer_id'])
+        cart=Cart.objects.get(cart_id=all_data['cart_id'])
+        item=Item.objects.get(item_id=all_data['item_id'])
+        if customer:
+            if cart:
+                if item:
+                    cart.itemsincart.remove(item)
+                    return JsonResponse("Update Successfully", safe=False)
+                else:
+                    return JsonResponse("no item found",safe=False)
+            else:
+                 return JsonResponse("no store found",safe=False)   
+        else:
+            return JsonResponse("no customer found",safe=False)
   
 
 
@@ -264,6 +315,7 @@ def OrderApi(request,id=0):
         return JsonResponse(order_serializer.data,safe=False)
     elif request.method=='POST':
         order_data=JSONParser().parse(request)
+        print(timezone.now(), order_data) 
         order_serializer=OrderSerializer(data=order_data)
         if order_serializer.is_valid():
             order_serializer.save()
@@ -282,7 +334,33 @@ def OrderApi(request,id=0):
         order.delete()
         return JsonResponse("Deleted Successfully",safe=False)
 
+        
 @csrf_exempt 
+def get_cart_id(request):
+    try:
+        customer_id= request.GET.get('customer_id')    
+        cart = Cart.objects.get(customer=customer_id)
+        return HttpResponse(cart.cart_id)
+    except Cart.DoesNotExist:
+        return None
+
+
+@csrf_exempt 
+def CurrentItemStoreApi(request):
+    if request.method=='GET':
+        item_id= request.GET.get('item_id')    
+        if item_id:
+            item=Item.objects.get(item_id=item_id)
+            store=Store.objects.get(item=item_id)  
+            store_id=store.store_id
+            return JsonResponse(store_id, safe=False)
+        else:
+            return JsonResponse("Missing item_id parameter", safe=False)
+    else:
+        return JsonResponse("Method not allowed",status=405)
+
+    
+@csrf_exempt
 def CurrentOrdersApi(request):
     if request.method == 'GET':
         customer_id = request.GET.get('customer_id')
@@ -368,3 +446,43 @@ def update_location(request):
 
         return JsonResponse({'message': 'Location data saved successfully'})
     return JsonResponse({'message': 'Invalid request method'})
+
+
+@csrf_exempt
+def get_orders_by_customer(request):
+    try:
+        customer_id = request.GET.get('customer_id')
+        orders = Order.objects.filter(customer_id=customer_id)
+        order_data = []
+        for order in orders:
+            items_ordered = order.items_ordered.all()
+            items_data = []
+            for item in items_ordered:
+                items_data.append({
+                    'item_id': item.item_id,
+                    'description': item.description,
+                    # Add any other fields you want to include for each item
+                })
+            order_data.append({
+                'order_id': order.order_id,
+                'destination_latitude': order.destination_latitude,
+                'destination_longitude': order.destination_longitude,
+                'store_id': order.store_id.store_id,
+                'order_time': order.order_time,
+                'items_ordered': items_data,
+            })
+        return JsonResponse({'orders': order_data})
+    except Exception as e:
+        return JsonResponse({'error': str(e)})
+
+@csrf_exempt
+def get_store_name(request):
+    try:
+        store_id = request.GET.get('store_id')
+        store = Store.objects.get(store_id=store_id)
+        store_name = store.store_name
+        return JsonResponse({'store_name': store_name})
+    except Store.DoesNotExist:
+        return JsonResponse({'error': 'Store not found'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)})

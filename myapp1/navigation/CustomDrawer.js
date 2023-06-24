@@ -224,7 +224,7 @@ const CustomDrawerContent = ({ navigation, selectedTab, setSelectedTab,firstname
             isFocused={selectedTab == "My Orders"}
             onPress={() => {
               setSelectedTab("My Orders")
-              navigation.navigate("Orders",{ items: OrdersI} )
+              navigation.navigate("Orders",{firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude} )
             }}
           />
           {/*line devider*/}

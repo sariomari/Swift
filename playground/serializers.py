@@ -18,16 +18,16 @@ class ItemSerializer(serializers.ModelSerializer):
         fields=('item_id','description','price','quantity','picture1','picture2','store')   
 
 class CartSerializer(serializers.ModelSerializer):
-    itemsincart = serializers.PrimaryKeyRelatedField(queryset=Item.objects.all(), many=True, required=False)
+    customer = serializers.PrimaryKeyRelatedField(queryset=Customer.objects.all())
 
     class Meta:
-        model=Cart
-        fields=('cart_id','customer_id','itemsincart')   
+        model = Cart
+        fields = ('cart_id', 'customer', 'itemsincart')
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model=Order
-        fields=('order_id','customer_id','items_ordered','store_id')
+        fields=('order_id','customer_id','destination_latitude','destination_longitude','items_ordered','store_id','order_time')
 
 
 class DriverSerializer(serializers.ModelSerializer):

@@ -22,6 +22,7 @@ import { TextInput } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
 import * as Font from 'expo-font';
 import {Own_URL} from '../Variables'; 
+import { Alert } from 'react-native';
 
 const StorePage = ({ navigation, route }) => {
   const [items, setItems] = useState([]);
@@ -40,7 +41,7 @@ const StorePage = ({ navigation, route }) => {
     };
     loadFont();
   }, []);
-  const { store_id ,customerid} = route.params;
+  const { store_id ,customerId} = route.params;
   const getdata = async () => {
     
   try{
@@ -215,25 +216,42 @@ useEffect(() => {
 }
 const [cartItems, setCartItems] = React.useState([]);
 
-const handleCartPress = React.useCallback(
-  (item) => {
-    // Check if the item is already in the cart
-    const index = cartItems.findIndex((cartItem) => cartItem.id === item.id);
+const handleCartPress = async (item) => {
+      curritemid=item.item_id
+      const response1 = await fetch(`${Own_URL}/cart/get_cart_id?customer_id=${customerId}`);
+      const currentcartid = await response1.json();
+      try {
+        // Make the request to add the item to the cart
+        const response = await fetch(`${Own_URL}/cart`, {
+          method: 'ADD_I',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customer_id: customerId,
+            cart_id: currentcartid,
+            item_id: item.item_id,
+          }),
+        });
+    
+        if (response.ok) {
+          // Item was added successfully
+          Alert.alert('Great Pick ', 'Item added to cart');
+        } else {
+          // Handle the case where adding the item to the cart failed
+          Alert.alert('Error', 'Failed to add item to cart');
+        }
+      } catch (error) {
+        // Handle any errors that occur during the request
+        console.error(error);
+        Alert.alert('Error', 'An error occurred while adding item to cart');
+      }
+    
+        
+}
+    
 
-    if (index === -1) {
-      // Item is not in the cart, add it
-      const updatedCart = [...cartItems, item];
-      setCartItems(updatedCart);
-    } else {
-      // Item is already in the cart, remove it
-      const updatedCart = cartItems.filter(
-        (cartItem) => cartItem.id !== item.id
-      );
-      setCartItems(updatedCart);
-    }
-  },
-  [cartItems]
-);
+    
   
 const MyFlatList = () => {
   
@@ -288,11 +306,9 @@ const renderItem = ({ item }) => (
       </View>
       <View style={{ flexDirection: 'row', alignSelf:'right' ,paddingHorizontal:14 }}>
       <TouchableOpacity style={styles.cartButton} onPress={() => handleCartPress(item)}>
-        {cartItems.some((cartItem) => cartItem.id === item.id) ? (
-          <AntDesign name="check" style={styles.cartIcon} />
-        ) : (
+      
           <AntDesign name="shoppingcart" style={styles.cartIcon} />
-        )}
+      
       </TouchableOpacity>
       </View>
       </View>

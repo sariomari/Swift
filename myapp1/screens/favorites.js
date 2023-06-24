@@ -5,9 +5,10 @@ import { setSelectedTab } from '../stores/tab/tabActions';
 import { AntDesign } from '@expo/vector-icons';
 import { TextInput } from 'react-native-gesture-handler';
 import * as Font from 'expo-font';
+import {Own_URL} from '../Variables'; 
+
 const Favorites = ({ navigation, setSelectedTab,route }) => {
   const {firstname,lastname,customerId,username,password,phone_number,email,latitude,longitude,favorite_stores} = route.params;  
-  console.log(favorite_stores)
   const [fontLoaded, setFontLoaded] = React.useState(false);
   React.useEffect(() => {
       const loadFont = async () => {
@@ -30,9 +31,10 @@ const Favorites = ({ navigation, setSelectedTab,route }) => {
       </View>
     );
   }
-
-
-  console.log(favorite_stores)
+  const [newdata, setNewdata] = React.useState([]);
+  React.useEffect(() => {
+    setNewdata(favorite_stores); // Pass favorite_stores as an argument to setNewdata
+  }, [favorite_stores]);
 
   const numColumns = 2;
   const screenWidth = Dimensions.get('window').width;
@@ -108,17 +110,31 @@ const Favorites = ({ navigation, setSelectedTab,route }) => {
     };
 
     const handleFavorite = (item) => {
-        const updatedData = data.map((dataItem) => {
-          if (dataItem.id === item.id) {
-            return { ...dataItem, isFavorite: !dataItem.isFavorite };
-          }
-          return dataItem;
+      console.log(newdata.filter(id => id !== parseInt( item.store_id)))
+      fetch(`${Own_URL}/customer`, {
+        method: 'DELETE_F',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customer_id: customerId,
+          store_id:parseInt( item.store_id),
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          
+          const updatedFavorites = newdata.filter(store => store.store_id !== item.store_id);
+          setNewdata(updatedFavorites);
+          // Handle the response data
+        })
+        .catch(error => {
+          // Handle any errors
+          console.error(error);
         });
-      
-        const updatedFavorites = updatedData.filter((item) => item.isFavorite);
-        setFavorites(updatedFavorites);
-      };
-
+  
+  
+    };
     // Render each item in the list
     const renderItem = ({ item }) => (
       <TouchableOpacity onPress={() => handlePress(item)}>
@@ -127,7 +143,7 @@ const Favorites = ({ navigation, setSelectedTab,route }) => {
           <View style={styles.itemContent}>
           <Text style={styles.itemText}>{item.store_name}</Text>
           <TouchableOpacity onPress={() => handleFavorite(item)} style={styles.favoriteButton}>
-  <AntDesign name="heart" size={23} color="black" />
+          <AntDesign name="heart" size={23} color="black" />
 
 </TouchableOpacity>
       </View>
@@ -137,9 +153,9 @@ const Favorites = ({ navigation, setSelectedTab,route }) => {
   );
   return (
     <FlatList
-    data={favorite_stores}
+    data={newdata}
     renderItem={renderItem}
-    keyExtractor={(item, index) => item.id + index}
+    keyExtractor={(item) => item.store_id.toString()}  // Here I changed to use the store_id as a key, it should be unique.
     numColumns={numColumns}
     
   />
@@ -201,7 +217,7 @@ const Favorites = ({ navigation, setSelectedTab,route }) => {
          
           {renderSearch()}
           <View style={{ flex: 1 }}>
-      <MyFlatList data={favorite_stores}
+      <MyFlatList data={newdata}
   renderItem={({ item }) => renderItem(item)}
   numColumns={numColumns}/>
     </View>
