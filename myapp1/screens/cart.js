@@ -238,10 +238,9 @@ const Cart = ({ navigation, route }) => {
             } else {
               console.log('Failed to clear cart:', cartResponse.status);
             }
-          } else {
-            console.log('Failed to add order');
-          }
-        } catch (error) {
+          } 
+         
+      catch (error) {
           console.error('Error while adding order:', error);
         }
       } else {
