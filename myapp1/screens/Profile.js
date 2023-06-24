@@ -46,6 +46,105 @@ const Profile = ({ setSelectedTab ,route}) => {
     loadFont();
   }, []);
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      paddingTop: 40,
+      backgroundColor: '#FFFFFF',
+    },
+    text: {
+      fontFamily: fontLoaded ? 'Formalf' : 'Arial',
+      fontWeight: 'bold',
+      fontSize: 34,
+      textAlign: 'center',
+      color: '#000000',
+      marginBottom: 20,
+      paddingTop: 25,
+    },
+    textt: {
+      fontFamily: fontLoaded ? 'Formalf' : 'Arial',
+      fontWeight: 'bold',
+      fontSize: 34,
+      textAlign: 'center',
+      color: '#000000',
+      marginBottom: 20,
+      paddingTop: 25,
+      
+    },
+    texttt: {
+      fontFamily: fontLoaded ? 'Formalf' : 'Arial',
+      fontWeight: 'bold',
+      fontSize: 26,
+      textAlign: 'center',
+      color: '#000000',
+      marginBottom: 20,
+      paddingTop: 25,
+      
+    },
+    textnew: {
+      fontFamily: fontLoaded ? 'Formalf' : 'Arial',
+      fontWeight: 'bold',
+      fontSize: 24,
+      textAlign: 'center',
+      color: '#000000',
+      marginBottom: 20,
+    },
+    logoContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    logoImage: {
+      width: 150,
+      height: 60,
+      alignItems: 'center',
+    },
+    logoButtonContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    drawerButton: {
+      position: 'absolute',
+      right: 16,
+    },
+    drawerIcon: {
+      width: 24,
+      height: 24,
+      tintColor: '#000000',
+    },
+    inputContainer: {
+      width: 180,
+      flexDirection: 'row',
+      alignItems: 'left',
+      alignItems: 'flex-start'
+    },
+    inputLabel: {
+      flex: 0,
+      fontWeight: 'bold',
+    },
+    input: {
+      flex: 2,
+      borderWidth: 1,
+      borderColor: '#000000',
+      borderRadius: 5,
+      paddingHorizontal: 10,
+      fontSize: 18, // Adjust the font size as desired
+      paddingVertical: 12, // Adjust the padding to increase the height
+    },
+    editButton: {
+      backgroundColor: '#ebebeb',
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      borderRadius: 5,
+      marginTop: 5,
+    },
+    editButtonText: {
+      color: '#000000',
+      fontWeight: 'bold',
+    },
+  });
+
   function renderSearch() {
     return (
       <View style={styles.logoButtonContainer}>
@@ -79,8 +178,8 @@ const Profile = ({ setSelectedTab ,route}) => {
       customer_id: customerId,
       username: Username,
       password: Password,
-      firstname: firstName,
-      lastname: lastName,
+      first_name: firstName,
+      last_name: lastName,
       phone_number: phoneNumber,
       email: Email,
       latitude: Latitude,
@@ -263,104 +362,5 @@ function mapDispatchToProps(dispatch) {
     },
   };
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingTop: 40,
-    backgroundColor: '#FFFFFF',
-  },
-  text: {
-    fontFamily: fontLoaded ? 'Formalf' : 'Arial',
-    fontWeight: 'bold',
-    fontSize: 34,
-    textAlign: 'center',
-    color: '#000000',
-    marginBottom: 20,
-    paddingTop: 25,
-  },
-  textt: {
-    fontFamily: fontLoaded ? 'Formalf' : 'Arial',
-    fontWeight: 'bold',
-    fontSize: 34,
-    textAlign: 'center',
-    color: '#000000',
-    marginBottom: 20,
-    paddingTop: 25,
-    
-  },
-  texttt: {
-    fontFamily: fontLoaded ? 'Formalf' : 'Arial',
-    fontWeight: 'bold',
-    fontSize: 26,
-    textAlign: 'center',
-    color: '#000000',
-    marginBottom: 20,
-    paddingTop: 25,
-    
-  },
-  textnew: {
-    fontFamily: fontLoaded ? 'Formalf' : 'Arial',
-    fontWeight: 'bold',
-    fontSize: 24,
-    textAlign: 'center',
-    color: '#000000',
-    marginBottom: 20,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoImage: {
-    width: 150,
-    height: 60,
-    alignItems: 'center',
-  },
-  logoButtonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  drawerButton: {
-    position: 'absolute',
-    right: 16,
-  },
-  drawerIcon: {
-    width: 24,
-    height: 24,
-    tintColor: '#000000',
-  },
-  inputContainer: {
-    width: 180,
-    flexDirection: 'row',
-    alignItems: 'left',
-    alignItems: 'flex-start'
-  },
-  inputLabel: {
-    flex: 0,
-    fontWeight: 'bold',
-  },
-  input: {
-    flex: 2,
-    borderWidth: 1,
-    borderColor: '#000000',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    fontSize: 18, // Adjust the font size as desired
-    paddingVertical: 12, // Adjust the padding to increase the height
-  },
-  editButton: {
-    backgroundColor: '#ebebeb',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 5,
-    marginTop: 5,
-  },
-  editButtonText: {
-    color: '#000000',
-    fontWeight: 'bold',
-  },
-});
 
 export default connect(null, mapDispatchToProps)(Profile);
