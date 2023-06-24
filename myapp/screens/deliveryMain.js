@@ -3,7 +3,6 @@ import MapView, { Marker, AnimatedRegion } from "react-native-maps";
 import { View, SafeAreaView, StyleSheet, Dimensions, Image, Text, TouchableOpacity } from "react-native";
 import { requestForegroundPermissionsAsync, watchPositionAsync } from 'expo-location';
 import * as Location from 'expo-location';
-import PubNub from "pubnub";
 import TaskScreen from "./taskScreen";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -11,8 +10,8 @@ import { Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 const { width, height } = Dimensions.get("window");
 
 const ASPECT_RATIO = width / height;
-const LATITUDE = 51.515579;
-const LONGITUDE = -0.128360;
+const LATITUDE = 32.113;
+const LONGITUDE = 34.79935;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
@@ -32,12 +31,6 @@ export default class DeliveryMap extends React.Component {
                 longitudeDelta: 0
             })
         };
-
-        this.pubnub = new PubNub({
-            publishKey: "pub-c-f06a9a5c-8872-4069-9e9f-24c21f169c4b",
-            subscribeKey: "sub-c-2b7777f6-156d-46a5-a975-3e7a4ff60d38",
-            userId: "sari12"
-        });
     }
 
     componentDidMount() {
@@ -46,13 +39,6 @@ export default class DeliveryMap extends React.Component {
 
     componentDidUpdate(prevState) {
         if (this.props.latitude !== prevState.latitude) {
-            this.pubnub.publish({
-                message: {
-                    latitude: this.state.latitude,
-                    longitude: this.state.longitude
-                },
-                channel: "location"
-            });
             const driver_id = this.driver_id
             this.sendLocationToBackend(driver_id, this.props.latitude, this.props.longitude);
         }
@@ -95,7 +81,7 @@ export default class DeliveryMap extends React.Component {
                     },
                     () => {
                         // Send the location data to the backend
-                        this.sendLocationToBackend(driver_id, latitude, longitude);
+                        this.sendLocationToBackend(this.driver_id, latitude, longitude);
                     }
                 );
             }
@@ -103,49 +89,68 @@ export default class DeliveryMap extends React.Component {
         // if a new task has arrived
         const task_to_assign = await this.taskExists(this.driver_id);
         if (task_to_assign) {
-            this.assignTask(task_to_assign['task_id'], task_to_assign['order_id'],
+            this.assignTask(task_to_assign['task_id'],
                  task_to_assign['fromAddress'], task_to_assign['toAddress']);
         }
     };
 
     taskExists = async (driver_id) => {
+        console.log('checking if there are tasks');
         const task_url = `http://127.0.0.1:8000/check_tasks_for_driver?driver_id=${driver_id}&latitude=${this.state.latitude}&longitude=${this.state.longitude}`;
-        const response = await fetch(task_url);
-        if (Object.keys(response.data)) {
-            const task_data = await response.json();
+        console.log(task_url);
+        let response = await fetch(task_url);
+        if (!response.ok){
+            console.log('response is not ok');
+        }
+        let task_data = await response.json();
+        console.log(task_data);
+        if (Object.keys(task_data)) {
+            console.log(task_data);
             return task_data;
         }
         else {
+            console.log('no tasks')
             return null;
         }
     };
 
-    assignTask = (task_id, order_id, fromAddress, toAddress) => {
+    assignTask = (task_id, fromAddress, toAddress) => {
         this.setState({
             task: {
                 task_id,
-                order_id,
                 fromAddress,
                 toAddress
             }
         });
     };
 
-    handleTaskAcceptance = async (task_id, driver_id) => {
-        const response = await fetch(`127.0.0.1:8000/accept_task`,{
+    handleTaskAcceptance = async () => {
+        const driver_id = this.driver_id;
+        const { task_id } = this.state.task;
+        console.log(`${task_id}`)
+        const response = await fetch(`http://127.0.0.1:8000/accept_task`,{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
             task_id: task_id,
-            driver_id: driver_id
+            driver_id: driver_id,
+            latitude: this.state.latitude,
+            longitude: this.state.longitude
         })
-    })
-        this.setState({ taskActive: true });
+    });
+        if (!response.ok){
+            console.log('could not accept task')
+        }
+        else{
+            console.log('accepted task');
+            this.setState({ taskActive: true });
+        }
     };
 
-    finishTask = async (task_id) => {
+    finishTask = async () => {
+        const { task_id } = this.state.task;
         // Send to backend that task is finished
         const response = await fetch(`http://127.0.0.1:8000/complete_task`, {
             method: 'DELETE',
@@ -166,7 +171,7 @@ export default class DeliveryMap extends React.Component {
     }
 
     sendLocationToBackend = (driver_id, latitude, longitude) => {
-        const url = 'http://127.0.0.1:8000/update_location'; // Replace with your backend URL
+        const url = 'http://127.0.0.1:8000/update_location';
         const data = {
             driver_id: driver_id,
             latitude,
@@ -234,7 +239,7 @@ export default class DeliveryMap extends React.Component {
                             title="New Task Has Arrived!"
                             fromAddress={task.fromAddress}
                             toAddress={task.toAddress}
-                            onAcceptTask={this.handleTaskAcceptance} // Pass the callback function as prop
+                            onAcceptTask={this.handleTaskAcceptance}
                         />
                     )}
                 </View>
@@ -244,7 +249,7 @@ export default class DeliveryMap extends React.Component {
                             <View style={styles.iconWithText}>
                                 <Octicons name="tasklist" size={24} color="green" />
                                 <Text style={styles.taskTitle}>Active Task</Text>
-                                <TouchableOpacity style={styles.buttonContainer} onPress={this.finishTask(this.state.task.task_id)}>
+                                <TouchableOpacity style={styles.buttonContainer} onPress={this.finishTask}>
                                     <Text style={{ color: "white", fontWeight: "bold" }}>Complete Task</Text>
                                 </TouchableOpacity>
                             </View>

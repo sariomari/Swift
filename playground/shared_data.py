@@ -1,17 +1,26 @@
-ALL_TASKS = {
-    "TLV": {
-        "ZONE1": set(),
-        "ZONE2": set(),
-        "ZONE3": set(),
-    },
-    "NZRT": {
-        "ZONE1": set(),
-        "ZONE2": set(),
-    },
-    "KBL": {
-        "ZONE1": set(),
-    }
-}
+from django.core.cache import cache
+
+
+def get_task_manager():
+    task_manager = cache.get('task_manager')
+    if task_manager is None:
+      # Variable not found in cache, initialize it
+      task_manager = {
+          "TLV": {
+              "ZONE1": set(),
+              "ZONE2": set(),
+              "ZONE3": set(),
+          },
+          "NZRT": {
+              "ZONE1": set(),
+              "ZONE2": set(),
+          },
+          "KBL": {
+              "ZONE1": set(),
+          }
+      }
+      cache.set('task_manager', task_manager)
+    return task_manager
 
 TLV_DRIVERS = {
     "ZONE1": {"tamerdamouni"},

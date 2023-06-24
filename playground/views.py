@@ -2,18 +2,15 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.core import serializers
-from django.utils import timezone
-from rest_framework.response import Response
 from playground.models import Customer, Store, Item, Order, Driver, Cart, Task
 from playground.serializers import CustomerSerializer, StoreSerializer, ItemSerializer, OrderSerializer, CartSerializer, DriverSerializer, TaskSerializer
 from playground.driver_utils import update_driver_zone, create_task_from_order, get_zone_from_lat_long
-from playground.shared_data import ALL_TASKS
+from playground.shared_data import get_task_manager
 from django.core.files.storage import default_storage
 import json
+from django.core.cache import cache
 
-from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponse
 
 
 @csrf_exempt
@@ -473,50 +470,65 @@ def get_store_name(request):
 def accept_task(request):
     '''Task was accepted by the driver'''
     if request.method == 'POST':
-        try:
-            task_data = JSONParser.parse(request)
-        except Exception as e:
-            return Response(str(e))
+        task_data = json.loads(request.body)
+        print("Task data:", task_data)
         task_id, driver_id = task_data['task_id'], task_data['driver_id']
-        try:  # assign driver to task
-            driver_obj = Driver.objects.get(driver_id=driver_id)
-            Task.objects.filter(task_id=task_id).update(driver_id=driver_obj)
-        except Exception as e:
-            return Response(str(e))
+        latitude, longitude = task_data['latitude'], task_data['longitude']
+        driver_zone = get_zone_from_lat_long(latitude, longitude)
+        print("im here")
+        driver_obj = Driver.objects.get(driver_id=driver_id)
+        task_obj = Task.objects.get(task_id=task_id)
+        Task.objects.filter(task_id=task_id).update(driver_id=driver_obj)
+
+        task_manager = get_task_manager()
+        print(task_manager)
+        task_manager["TLV"][driver_zone].remove(task_obj)
+        cache.set('task_manager', task_manager)
+        return HttpResponse('Task was successfully accepted')
     else:
-        return Response('Invalid request method')
+        return HttpResponse('Invalid request method')
 
 
 @csrf_exempt
 def complete_task(request):
     if request.method == 'DELETE':
-        try:
-            task_data = JSONParser.parse(request)
-        except Exception as e:
-            return Response(str(e))
+        task_data = json.loads(request.body)
+        print(task_data)
         task_id = task_data['task_id']
+        print(task_id)
         task_obj = Task.objects.get(task_id=task_id)
-        task_zone = task_obj['zone']
+        print(task_obj)
+        task_zone = task_obj.zone
         Task.objects.filter(task_id=task_id).update(
             completed=True
         )
-        ALL_TASKS["TLV"][task_zone].remove(task_obj)
+        return HttpResponse('Task completed')
     else:
-        return Response('Invalid request method')
+        return HttpResponse('Invalid request method')
 
+
+@csrf_exempt
 def check_tasks_for_driver(request):
     if request.method == 'GET':
         latitude = request.GET.get('latitude')
         longitude = request.GET.get('longitude')
         driver_zone = get_zone_from_lat_long(latitude, longitude)
-        
-        tasks_in_driver_zone = ALL_TASKS["TLV"][driver_zone]
+        task_manager = get_task_manager()
+        print("TASK MANAGER: ", task_manager)
+        print("DRIVER ZONE:", driver_zone)
+        tasks_in_driver_zone = task_manager["TLV"][driver_zone]
+        print("TASKS", tasks_in_driver_zone)
         if (len(tasks_in_driver_zone) > 0):
+            print("THERE ARE TASKS")
             task = tasks_in_driver_zone.pop()
+            tasks_in_driver_zone.add(task)
+            cache.set("task_manager", task_manager)
+            print(task.task_id, task.fromAddress)
             return JsonResponse({
                 "task_id": task.task_id,
-                "order_id": task.order_id,
                 "fromAddress": task.fromAddress,
                 "toAddress": task.toAddress,
             })
-        return None
+        print("NO TASKS")
+        return HttpResponse("No Tasks")
+    return HttpResponse("invalid request method")

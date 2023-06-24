@@ -1,13 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { StyleSheet, SafeAreaView, LogBox } from 'react-native';
 import LoginScrn from './screens/loginScreen';
 import SignUpScrn from './screens/signUpScreen';
 import DeliveryMap from './screens/deliveryMain';
 import CustomDrawer from './navigation/CustomDrawer';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
+LogBox.ignoreAllLogs();
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {

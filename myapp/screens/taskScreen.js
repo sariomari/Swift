@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, Button } from 'react-native';
 
-const TaskScreen = ({ task_id, order_id, fromAddress, toAddress, onAcceptTask }) => {
+const TaskScreen = ({ title, fromAddress, toAddress, onAcceptTask }) => {
   return (
     <View style={styles.container}>
         <View style={styles.taskContainer}>
-          <Text style={styles.title}>New Task Has Arrived</Text>
+          <Text style={styles.title}>{title}</Text>
           <View style={styles.addressContainer}>
             <Text style={styles.address}>
               <Text style={styles.bold}>From: </Text>
