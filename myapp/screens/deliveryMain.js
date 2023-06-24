@@ -19,7 +19,7 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 export default class DeliveryMap extends React.Component {
     constructor(props) {
         super(props);
-
+        this.driver_id = 1;
         this.state = {
             task: null,
             taskActive: false,
@@ -53,7 +53,7 @@ export default class DeliveryMap extends React.Component {
                 },
                 channel: "location"
             });
-            const { driver_id } = "tamerdamouni";
+            const driver_id = this.driver_id
             this.sendLocationToBackend(driver_id, this.props.latitude, this.props.longitude);
         }
     }
@@ -95,34 +95,73 @@ export default class DeliveryMap extends React.Component {
                     },
                     () => {
                         // Send the location data to the backend
-                        const driver_id = 1;
                         this.sendLocationToBackend(driver_id, latitude, longitude);
                     }
                 );
             }
         );
         // if a new task has arrived
-        if (this.state.latitude == 51.515579 && this.state.longitude == -0.128360) {
-            this.assignTask("New Task Has Arrived!", "NY Madison Avenue", "One World Trade Center");
+        const task_to_assign = await this.taskExists(this.driver_id);
+        if (task_to_assign) {
+            this.assignTask(task_to_assign['task_id'], task_to_assign['order_id'],
+                 task_to_assign['fromAddress'], task_to_assign['toAddress']);
         }
     };
 
-    assignTask = (title, fromAddress, toAddress) => {
+    taskExists = async (driver_id) => {
+        const task_url = `http://127.0.0.1:8000/check_tasks_for_driver?driver_id=${driver_id}&latitude=${this.state.latitude}&longitude=${this.state.longitude}`;
+        const response = await fetch(task_url);
+        if (Object.keys(response.data)) {
+            const task_data = await response.json();
+            return task_data;
+        }
+        else {
+            return null;
+        }
+    };
+
+    assignTask = (task_id, order_id, fromAddress, toAddress) => {
         this.setState({
             task: {
-                title,
+                task_id,
+                order_id,
                 fromAddress,
                 toAddress
             }
         });
     };
 
-    handleTaskAcceptance = () => {
+    handleTaskAcceptance = async (task_id, driver_id) => {
+        const response = await fetch(`127.0.0.1:8000/accept_task`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            task_id: task_id,
+            driver_id: driver_id
+        })
+    })
         this.setState({ taskActive: true });
     };
 
-    finishTask = () => {
+    finishTask = async (task_id) => {
         // Send to backend that task is finished
+        const response = await fetch(`http://127.0.0.1:8000/complete_task`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "task_id": task_id
+            }),
+        });
+        if (response.ok){
+            console.log("Task Completed");
+        }
+        else{
+            console.log(response.status)
+        }
         this.setState({ task: null, taskActive: false })
     }
 
@@ -192,7 +231,7 @@ export default class DeliveryMap extends React.Component {
                     </MapView>
                     {task && !taskActive && (
                         <TaskScreen
-                            title={task.title}
+                            title="New Task Has Arrived!"
                             fromAddress={task.fromAddress}
                             toAddress={task.toAddress}
                             onAcceptTask={this.handleTaskAcceptance} // Pass the callback function as prop
@@ -205,7 +244,7 @@ export default class DeliveryMap extends React.Component {
                             <View style={styles.iconWithText}>
                                 <Octicons name="tasklist" size={24} color="green" />
                                 <Text style={styles.taskTitle}>Active Task</Text>
-                                <TouchableOpacity style={styles.buttonContainer} onPress={this.finishTask}>
+                                <TouchableOpacity style={styles.buttonContainer} onPress={this.finishTask(this.state.task.task_id)}>
                                     <Text style={{ color: "white", fontWeight: "bold" }}>Complete Task</Text>
                                 </TouchableOpacity>
                             </View>

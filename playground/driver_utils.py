@@ -1,5 +1,6 @@
-from playground.shared_data import CITY_INFORMATION_MAP
-from playground.models import Driver, Customer, Store
+from playground.shared_data import CITY_INFORMATION_MAP, ALL_TASKS
+from playground.models import Driver, Customer, Store, Task, Order
+from geopy.geocoders import Nominatim
 
 
 def update_driver_zone(driver_id, latitude, longitude):
@@ -85,10 +86,33 @@ def sendOrderNow(userID, user_location, store_location, items):
     drivers_in_city = CITY_INFORMATION_MAP[store_city][0]
     drivers_in_zone = drivers_in_city[store_zone]
 
-    for driver_id in drivers_in_zone:
-        assign_task_to_driver(driver_id, user_lat, user_long,
-                              store_lat, store_long, items)
 
+def create_task_from_order(order_id, store_id, customer_id):
+    customer_obj = Customer.objects.get(customer_id=customer_id)
+    store_obj = Store.objects.get(store_id=store_id)
+    order_obj = Order.objects.get(order_id=order_id)
+    
+    store_id = store_id
+    store_zone = get_zone_from_lat_long(store_obj.latitude, store_obj.longitude)
+    print(store_zone)
+    
+    geolocator = Nominatim(user_agent="swift_app")
+    fromAddress = geolocator.reverse([str(store_obj.latitude), str(store_obj.longitude)])
+    toAddress = geolocator.reverse([str(customer_obj.latitude), str(customer_obj.longitude)])
+    
+    print(fromAddress, toAddress)
+    new_task = Task.objects.create(
+        store_id=store_obj,
+        order_id=order_obj,
+        fromAddress="Dov Gruner",
+        toAddress="Shlomo Ben Yosef",
+    )
+    ALL_TASKS["TLV"][store_zone].add(new_task)
+    print("ALL TASKS:", ALL_TASKS)
+    new_task.save()
+    
+def get_address_from_lat_long(latitude, longitude):
+    return "Dov Gruner 17"
 
 def get_city(latitude, longitude):
     return "TLV"

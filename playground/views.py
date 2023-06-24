@@ -4,21 +4,17 @@ from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.core import serializers
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-
 from django.utils import timezone
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from playground.models import Customer,Store,Item,Order,Driver,Cart
-from playground.serializers import CustomerSerializer ,StoreSerializer,ItemSerializer,OrderSerializer,CartSerializer,DriverSerializer, TaskSerializer
-from playground.driver_utils import update_driver_zone
+from playground.models import Customer, Store, Item, Order, Driver, Cart, Task
+from playground.serializers import CustomerSerializer, StoreSerializer, ItemSerializer, OrderSerializer, CartSerializer, DriverSerializer, TaskSerializer
+from playground.driver_utils import update_driver_zone, create_task_from_order, get_zone_from_lat_long
+from playground.shared_data import ALL_TASKS
 from django.core.files.storage import default_storage
-from django.contrib.auth import authenticate, login
-from django.views.decorators.http import require_POST
 import json
 
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+
 
 @csrf_exempt
 def login_view(request):
@@ -38,22 +34,19 @@ def login_view(request):
         request.session['username'] = user.username
         request.session['password'] = user.password
         request.session['phone_number'] = user.phone_number
-        request.session['latitude'] =float(user.latitude)
+        request.session['latitude'] = float(user.latitude)
         request.session['longitude'] = float(user.longitude)
         favorite_stores = list(user.favorite_stores.values())
 
-        return JsonResponse({'message': 'Login Successful', 'customerId': user.customer_id,  'first_name': user.first_name, 'last_name': user.last_name, 'username': user.username
-        , 'password': user.password
-        , 'phone_number': user.phone_number,'email':user.email
-        , 'latitude': user.latitude,'longitude': user.longitude,'favorite_stores':favorite_stores})
+        return JsonResponse({'message': 'Login Successful', 'customerId': user.customer_id,  'first_name': user.first_name, 'last_name': user.last_name, 'username': user.username, 'password': user.password, 'phone_number': user.phone_number, 'email': user.email, 'latitude': user.latitude, 'longitude': user.longitude, 'favorite_stores': favorite_stores})
     else:
         return JsonResponse({'error': 'Invalid username or password'}, status=401)
 
 
-
-@csrf_exempt 
+@csrf_exempt
 def get_store_items(request):
-    store_id = request.GET.get('store_id')  # Assuming the store ID is sent as a query parameter
+    # Assuming the store ID is sent as a query parameter
+    store_id = request.GET.get('store_id')
     if store_id is not None:
         try:
             items = Item.objects.filter(store_id=store_id)
@@ -63,11 +56,11 @@ def get_store_items(request):
             return JsonResponse({'error': 'Store not found'}, status=404)
     else:
         return JsonResponse({'error': 'Store ID parameter is missing'}, status=400)
-    
 
-@csrf_exempt 
-def CustomerApi(request,id=0):
-    if request.method=='GET':
+
+@csrf_exempt
+def CustomerApi(request, id=0):
+    if request.method == 'GET':
         if id != 0:
             try:
                 customer = Customer.objects.get(customer_id=id)
@@ -81,9 +74,9 @@ def CustomerApi(request,id=0):
             customers = Customer.objects.all()
             customer_serializer = CustomerSerializer(customers, many=True)
             return JsonResponse(customer_serializer.data, safe=False)
-    elif request.method=='POST':
-        customer_data=JSONParser().parse(request)
-        customer_serializer=CustomerSerializer(data=customer_data)
+    elif request.method == 'POST':
+        customer_data = JSONParser().parse(request)
+        customer_serializer = CustomerSerializer(data=customer_data)
         if customer_serializer.is_valid():
             customer_serializer.save()
             return JsonResponse("Added Successfully", safe=False)
@@ -100,7 +93,7 @@ def CustomerApi(request,id=0):
     elif request.method == 'DELETE':
         customer = Customer.objects.get(customer_id=id)
         customer.delete()
-        return JsonResponse("Deleted Successfully",safe=False)
+        return JsonResponse("Deleted Successfully", safe=False)
     elif request.method == 'FAVORITE_STORES':
         customer_id = id
         customer = Customer.objects.get(customer_id=customer_id)
@@ -120,7 +113,7 @@ def CustomerApi(request,id=0):
             else:
                 return JsonResponse("Invalid store_id", status=400)
         else:
-            return JsonResponse("Customer or store not found",status=404)
+            return JsonResponse("Customer or store not found", status=404)
     elif request.method == 'DELETE_F':
         fav_data = JSONParser().parse(request)
         customer_id = fav_data['customer_id']
@@ -134,14 +127,12 @@ def CustomerApi(request,id=0):
             else:
                 return JsonResponse("Invalid store_id", status=400)
         else:
-            return JsonResponse("Customer or store not found",status=404)    
-   
+            return JsonResponse("Customer or store not found", status=404)
 
 
-
-@csrf_exempt 
-def DriverApi(request,id=0):
-    if request.method=='GET':
+@csrf_exempt
+def DriverApi(request, id=0):
+    if request.method == 'GET':
         if id != 0:
             try:
                 driver = Driver.objects.get(customer_id=id)
@@ -155,22 +146,17 @@ def DriverApi(request,id=0):
             drivers = Driver.objects.all()
             driver_serializer = DriverSerializer(drivers, many=True)
             return JsonResponse(driver_serializer.data, safe=False)
-    elif request.method=='POST':
-        driver_data=JSONParser().parse(request)
-        driver_serializer=DriverSerializer(data=driver_data)
+    elif request.method == 'POST':
+        driver_data = JSONParser().parse(request)
+        driver_serializer = DriverSerializer(data=driver_data)
         if driver_serializer.is_valid():
             driver_serializer.save()
-            return JsonResponse("Added Successfully",safe=False)
-        return JsonResponse("Failed To Add!",safe=False)
-    elif request.method=='DELETE':
-        driver=Driver.objects.get(driver_id=id )
+            return JsonResponse("Added Successfully", safe=False)
+        return JsonResponse("Failed To Add!", safe=False)
+    elif request.method == 'DELETE':
+        driver = Driver.objects.get(driver_id=id)
         driver.delete()
-        return JsonResponse("Deleted Successfully",safe=False)
-
-
-
-
-
+        return JsonResponse("Deleted Successfully", safe=False)
 
 
 @csrf_exempt
@@ -199,9 +185,10 @@ def StoreApi(request, id=0):
         store.delete()
         return JsonResponse("Deleted Successfully", safe=False)
 
-@csrf_exempt 
-def ItemApi(request,id=0):
-    if request.method=='GET' and id==0:
+
+@csrf_exempt
+def ItemApi(request, id=0):
+    if request.method == 'GET' and id == 0:
         items = Item.objects.all()
         item_serializer = ItemSerializer(items, many=True)
         return JsonResponse(item_serializer.data, safe=False)
@@ -223,14 +210,15 @@ def ItemApi(request,id=0):
     elif request.method == 'DELETE':
         item = Item.objects.get(item_id=id)
         item.delete()
-        return JsonResponse("Deleted Successfully",safe=False)
-    
-@csrf_exempt 
-def CartApi(request,id=0):
-    if request.method=='GET' and id==0:
+        return JsonResponse("Deleted Successfully", safe=False)
+
+
+@csrf_exempt
+def CartApi(request, id=0):
+    if request.method == 'GET' and id == 0:
         carts = Cart.objects.all()
-        cart_serializer=CartSerializer(carts,many=True)
-        return JsonResponse(cart_serializer.data,safe=False)
+        cart_serializer = CartSerializer(carts, many=True)
+        return JsonResponse(cart_serializer.data, safe=False)
     elif request.method == 'POST':
         cart_data = json.loads(request.body)
         customer_id = cart_data.get('customer')
@@ -245,9 +233,9 @@ def CartApi(request,id=0):
             cart.itemsincart.set(itemsincart)
 
             if created:
-                return JsonResponse("Cart Created Successfully", status=201,safe=False)
+                return JsonResponse("Cart Created Successfully", status=201, safe=False)
             else:
-                return JsonResponse("Cart Updated Successfully", status=200,safe=False)
+                return JsonResponse("Cart Updated Successfully", status=200, safe=False)
 
         except Customer.DoesNotExist:
             return JsonResponse("Customer not found", status=404)
@@ -267,39 +255,38 @@ def CartApi(request,id=0):
         cart = Cart.objects.get(cart_id=id)
         cart.delete()
         return JsonResponse("Deleted Successfully", safe=False)
-    elif request.method=='ADD_I':
-        all_data=JSONParser().parse(request)
-        customer=Customer.objects.get(customer_id=all_data['customer_id'])
-        cart=Cart.objects.get(cart_id=all_data['cart_id'])
-        item=Item.objects.get(item_id=all_data['item_id'])
+    elif request.method == 'ADD_I':
+        all_data = JSONParser().parse(request)
+        customer = Customer.objects.get(customer_id=all_data['customer_id'])
+        cart = Cart.objects.get(cart_id=all_data['cart_id'])
+        item = Item.objects.get(item_id=all_data['item_id'])
         if customer:
             if cart:
                 if item:
                     cart.itemsincart.add(item)
                     return JsonResponse("Update Successfully", safe=False)
                 else:
-                    return JsonResponse("no item found",safe=False)
+                    return JsonResponse("no item found", safe=False)
             else:
-                 return JsonResponse("no store found",safe=False)   
+                return JsonResponse("no store found", safe=False)
         else:
-            return JsonResponse("no customer found",safe=False)    
-    elif request.method=='DELETE_I':
-        all_data=JSONParser().parse(request)
-        customer=Customer.objects.get(customer_id=all_data['customer_id'])
-        cart=Cart.objects.get(cart_id=all_data['cart_id'])
-        item=Item.objects.get(item_id=all_data['item_id'])
+            return JsonResponse("no customer found", safe=False)
+    elif request.method == 'DELETE_I':
+        all_data = JSONParser().parse(request)
+        customer = Customer.objects.get(customer_id=all_data['customer_id'])
+        cart = Cart.objects.get(cart_id=all_data['cart_id'])
+        item = Item.objects.get(item_id=all_data['item_id'])
         if customer:
             if cart:
                 if item:
                     cart.itemsincart.remove(item)
                     return JsonResponse("Update Successfully", safe=False)
                 else:
-                    return JsonResponse("no item found",safe=False)
+                    return JsonResponse("no item found", safe=False)
             else:
-                 return JsonResponse("no store found",safe=False)   
+                return JsonResponse("no store found", safe=False)
         else:
-            return JsonResponse("no customer found",safe=False)
-  
+            return JsonResponse("no customer found", safe=False)
 
 
 @csrf_exempt
@@ -308,59 +295,63 @@ def SaveFile(request):
     file_name = default_storage.save(file.name, file)
     return JsonResponse(file_name, safe=False)
 
-@csrf_exempt 
-def OrderApi(request,id=0):
-    if request.method=='GET':
-        order = Order.objects.all()
-        order_serializer=OrderSerializer(order,many=True)
-        return JsonResponse(order_serializer.data,safe=False)
-    elif request.method=='POST':
-        order_data=JSONParser().parse(request)
-        print(timezone.now(), order_data) 
-        order_serializer=OrderSerializer(data=order_data)
-        if order_serializer.is_valid():
-            order_serializer.save()
-            return JsonResponse("Added Successfully",safe=False)
-        return JsonResponse("Failed To Add!",safe=False)  
-    elif request.method=='PUT':
-        order_data=JSONParser().parse(request)
-        order=Order.objects.get(order_id=order_data['order_id'] )
-        order_serializer=OrderSerializer(order,data=order_data)
-        if order_serializer.is_valid():
-            order_serializer.save()
-            return JsonResponse("Update Successfully",safe=False)
-        return JsonResponse("Failed To Update!",safe=False)
-    elif request.method=='DELETE':
-        order=Order.objects.get(order_id=id )
-        order.delete()
-        return JsonResponse("Deleted Successfully",safe=False)
 
-        
-@csrf_exempt 
+@csrf_exempt
+def OrderApi(request, id=0):
+    if request.method == 'GET':
+        order = Order.objects.all()
+        order_serializer = OrderSerializer(order, many=True)
+        return JsonResponse(order_serializer.data, safe=False)
+    elif request.method == 'POST':
+        order_data = JSONParser().parse(request)
+        print(order_data)
+        order_serializer = OrderSerializer(data=order_data)
+        if order_serializer.is_valid():
+            order_serializer.save()
+            create_task_from_order(order_id=order_data['order_id'],
+                                   store_id=order_data['store_id'],
+                                   customer_id=order_data['customer_id'])
+            return JsonResponse("Added Successfully", safe=False)
+        return JsonResponse("Failed To Add!", safe=False)
+    elif request.method == 'PUT':
+        order_data = JSONParser().parse(request)
+        order = Order.objects.get(order_id=order_data['order_id'])
+        order_serializer = OrderSerializer(order, data=order_data)
+        if order_serializer.is_valid():
+            order_serializer.save()
+            return JsonResponse("Update Successfully", safe=False)
+        return JsonResponse("Failed To Update!", safe=False)
+    elif request.method == 'DELETE':
+        order = Order.objects.get(order_id=id)
+        order.delete()
+        return JsonResponse("Deleted Successfully", safe=False)
+
+
+@csrf_exempt
 def get_cart_id(request):
     try:
-        customer_id= request.GET.get('customer_id')    
+        customer_id = request.GET.get('customer_id')
         cart = Cart.objects.get(customer=customer_id)
         return HttpResponse(cart.cart_id)
     except Cart.DoesNotExist:
         return None
 
 
-@csrf_exempt 
+@csrf_exempt
 def CurrentItemStoreApi(request):
-    if request.method=='GET':
-        item_id= request.GET.get('item_id')    
+    if request.method == 'GET':
+        item_id = request.GET.get('item_id')
         if item_id:
-            item=Item.objects.get(item_id=item_id)
-            store=Store.objects.get(item=item_id)  
-            store_id=store.store_id
+            item = Item.objects.get(item_id=item_id)
+            store = Store.objects.get(item=item_id)
+            store_id = store.store_id
             return JsonResponse(store_id, safe=False)
         else:
             return JsonResponse("Missing item_id parameter", safe=False)
     else:
-        return JsonResponse("Method not allowed",status=405)
+        return JsonResponse("Method not allowed", status=405)
 
-    
+
 @csrf_exempt
 def CurrentOrdersApi(request):
     if request.method == 'GET':
@@ -373,9 +364,10 @@ def CurrentOrdersApi(request):
         else:
             return JsonResponse("Missing customer_id parameter", safe=False)
     else:
-        return JsonResponse("Method not allowed",status=405)
+        return JsonResponse("Method not allowed", status=405)
 
-@csrf_exempt 
+
+@csrf_exempt
 def get_cart_items(request):
     try:
         customer_id = request.GET.get('customer')
@@ -396,6 +388,7 @@ def get_item_data(request):
         return JsonResponse(serializer.data, status=200)
     except Item.DoesNotExist:
         return JsonResponse({'error': 'Item not found'}, status=404)
+
 
 @csrf_exempt
 def remove_cart_item(request):
@@ -418,25 +411,11 @@ def remove_cart_item(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
-@csrf_exempt
-@api_view(['POST'])
-def create_task(request):
-    if request.method == 'POST':
-        task_serializer = TaskSerializer(data=request.data)
-        print(task_serializer.get_fields())
-        if task_serializer.is_valid():
-            print("serializer is valid")
-            task_serializer.save()
-            return Response("Added Successfully", safe=False)
-        print("invalid")
-        return Response("Failed to update driver", status=400)
-    return Response({'message': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def update_location(request):
     if request.method == 'POST':
         driver_data = JSONParser().parse(request)
-        print(driver_data)
         driver_id = driver_data['driver_id']
         latitude = driver_data['latitude']
         longitude = driver_data['longitude']
@@ -476,6 +455,7 @@ def get_orders_by_customer(request):
     except Exception as e:
         return JsonResponse({'error': str(e)})
 
+
 @csrf_exempt
 def get_store_name(request):
     try:
@@ -487,3 +467,56 @@ def get_store_name(request):
         return JsonResponse({'error': 'Store not found'})
     except Exception as e:
         return JsonResponse({'error': str(e)})
+
+
+@csrf_exempt
+def accept_task(request):
+    '''Task was accepted by the driver'''
+    if request.method == 'POST':
+        try:
+            task_data = JSONParser.parse(request)
+        except Exception as e:
+            return Response(str(e))
+        task_id, driver_id = task_data['task_id'], task_data['driver_id']
+        try:  # assign driver to task
+            driver_obj = Driver.objects.get(driver_id=driver_id)
+            Task.objects.filter(task_id=task_id).update(driver_id=driver_obj)
+        except Exception as e:
+            return Response(str(e))
+    else:
+        return Response('Invalid request method')
+
+
+@csrf_exempt
+def complete_task(request):
+    if request.method == 'DELETE':
+        try:
+            task_data = JSONParser.parse(request)
+        except Exception as e:
+            return Response(str(e))
+        task_id = task_data['task_id']
+        task_obj = Task.objects.get(task_id=task_id)
+        task_zone = task_obj['zone']
+        Task.objects.filter(task_id=task_id).update(
+            completed=True
+        )
+        ALL_TASKS["TLV"][task_zone].remove(task_obj)
+    else:
+        return Response('Invalid request method')
+
+def check_tasks_for_driver(request):
+    if request.method == 'GET':
+        latitude = request.GET.get('latitude')
+        longitude = request.GET.get('longitude')
+        driver_zone = get_zone_from_lat_long(latitude, longitude)
+        
+        tasks_in_driver_zone = ALL_TASKS["TLV"][driver_zone]
+        if (len(tasks_in_driver_zone) > 0):
+            task = tasks_in_driver_zone.pop()
+            return JsonResponse({
+                "task_id": task.task_id,
+                "order_id": task.order_id,
+                "fromAddress": task.fromAddress,
+                "toAddress": task.toAddress,
+            })
+        return None

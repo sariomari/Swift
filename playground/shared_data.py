@@ -1,15 +1,15 @@
 ALL_TASKS = {
     "TLV": {
-        "ZONE1": {},
-        "ZONE2": {},
-        "ZONE3": {},
+        "ZONE1": set(),
+        "ZONE2": set(),
+        "ZONE3": set(),
     },
     "NZRT": {
-        "ZONE1": {},
-        "ZONE2": {},
+        "ZONE1": set(),
+        "ZONE2": set(),
     },
     "KBL": {
-        "ZONE1": {},
+        "ZONE1": set(),
     }
 }
 
