@@ -114,11 +114,11 @@ const styles = StyleSheet.create({
       username &&
       password &&
       phoneNumber &&
-      email &&
-      latitude &&
-      longitude
+      email 
     ) {
+
       try {
+       
         const response = await fetch(`${Own_URL}/customer`, {
           method: 'POST',
           headers: {
@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
             password: password,
             phone_number: phoneNumber,
             email: email,
-            latitude: latitude,
-            longitude: longitude,
+            latitude: "31.243564",
+            longitude: "32.154684",
             favorite_stores:[],
           }),
         });
@@ -216,23 +216,7 @@ const styles = StyleSheet.create({
         keyboardType="email-address"
       />
 
-      <Text style={styles.label}>Latitude</Text>
-      <TextInput
-        style={styles.input}
-        value={latitude}
-        onChangeText={setLatitude}
-        placeholder="Enter your latitude"
-        keyboardType="numeric"
-      />
-
-      <Text style={styles.label}>Longitude</Text>
-      <TextInput
-        style={styles.input}
-        value={longitude}
-        onChangeText={setLongitude}
-        placeholder="Enter your longitude"
-        keyboardType="numeric"
-      />
+ 
 
       <TouchableOpacity style={styles.button} onPress={handleSignup}>
         <Text style={styles.buttonText}>Sign Up</Text>

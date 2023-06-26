@@ -64,7 +64,7 @@ export default function SignUpScrn() {
     };
 
     return (
-      <ScrollView>
+      <ScrollView backgroundColor="#000000">
       <View style={styles.container}>
         <View style={styles.logo}>
           <Image style={styles.image} source = {require("./../assets/logo.jpeg")}/>

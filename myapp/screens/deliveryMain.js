@@ -37,11 +37,18 @@ export default class DeliveryMap extends React.Component {
         this.watchLocation();
     }
 
-    componentDidUpdate(prevState) {
+    componentDidUpdate = async(prevState) => {
         if (this.props.latitude !== prevState.latitude) {
             const driver_id = this.driver_id
             this.sendLocationToBackend(driver_id, this.props.latitude, this.props.longitude);
-        }
+            console.log('heyyyyyyyyyyyy')
+            // if a new task has arrived
+            const task_to_assign = await this.taskExists(this.driver_id);
+            if (task_to_assign) {
+                this.assignTask(task_to_assign['task_id'],
+                    task_to_assign['fromAddress'], task_to_assign['toAddress']);
+            }
+            }
     }
 
     componentWillUnmount() {
@@ -62,7 +69,7 @@ export default class DeliveryMap extends React.Component {
                 distanceInterval: 10, // Set the desired distance interval for updates
                 accuracy: Location.Accuracy.BestForNavigation, // Set the desired accuracy level
             },
-            (location) => {
+            async (location) => {
                 const { latitude, longitude } = location.coords;
 
                 const newCoordinate = {
@@ -82,8 +89,14 @@ export default class DeliveryMap extends React.Component {
                     () => {
                         // Send the location data to the backend
                         this.sendLocationToBackend(this.driver_id, latitude, longitude);
+                        
                     }
                 );
+                const task_to_assign = await this.taskExists(this.driver_id);
+                if (task_to_assign) {
+                    this.assignTask(task_to_assign['task_id'],
+                    task_to_assign['fromAddress'], task_to_assign['toAddress']);
+                }
             }
         );
         // if a new task has arrived
@@ -96,7 +109,7 @@ export default class DeliveryMap extends React.Component {
 
     taskExists = async (driver_id) => {
         console.log('checking if there are tasks');
-        const task_url = `http://127.0.0.1:8000/check_tasks_for_driver?driver_id=${driver_id}&latitude=${this.state.latitude}&longitude=${this.state.longitude}`;
+        const task_url = `http://172.20.10.2:8000/check_tasks_for_driver?driver_id=${driver_id}&latitude=${this.state.latitude}&longitude=${this.state.longitude}`;
         console.log(task_url);
         let response = await fetch(task_url);
         if (!response.ok){
@@ -128,7 +141,7 @@ export default class DeliveryMap extends React.Component {
         const driver_id = this.driver_id;
         const { task_id } = this.state.task;
         console.log(`${task_id}`)
-        const response = await fetch(`http://127.0.0.1:8000/accept_task`,{
+        const response = await fetch(`http://172.20.10.2:8000/accept_task`,{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -152,7 +165,7 @@ export default class DeliveryMap extends React.Component {
     finishTask = async () => {
         const { task_id } = this.state.task;
         // Send to backend that task is finished
-        const response = await fetch(`http://127.0.0.1:8000/complete_task`, {
+        const response = await fetch(`http://172.20.10.2:8000/complete_task`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -171,7 +184,7 @@ export default class DeliveryMap extends React.Component {
     }
 
     sendLocationToBackend = (driver_id, latitude, longitude) => {
-        const url = 'http://127.0.0.1:8000/update_location';
+        const url = 'http://172.20.10.2:8000/update_location';
         const data = {
             driver_id: driver_id,
             latitude,

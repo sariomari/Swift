@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'playground.apps.PlaygroundConfig'
+    'playground.apps.PlaygroundConfig',
+     'django_extensions'
 
 ]
 CORS_ORIGIN_ALLOW_ALL=True

@@ -203,7 +203,7 @@ const Profile = ({ setSelectedTab ,route}) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-       <ScrollView > 
+       <ScrollView style={{ backgroundColor: '#ffffff' }} > 
     <View style={styles.container}>
       {renderSearch()}
       {fontLoaded && (
@@ -222,20 +222,7 @@ const Profile = ({ setSelectedTab ,route}) => {
             <Text style={styles.textt}>{Username}</Text>
           )}
         </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.textt}>Password:</Text>
-            {isEditing ? (
-               <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                defaultValue={Password}
-                onChangeText={setpassword}
-              />
-              </View>
-            ) : (
-              <Text style={styles.textt}>{Password}</Text>
-            )}
-          </View>
+         
           <View style={styles.inputContainer}>
             <Text style={styles.textt}>First Name:</Text>
             {isEditing ? (
@@ -300,38 +287,6 @@ const Profile = ({ setSelectedTab ,route}) => {
          </View>
 
 
-         <View style={styles.inputContainer}>
-          <Text style={styles.textt}> 
-          Latitude:</Text>
-            {isEditing ? (
-              <View style={styles.inputContainer}>
-          <TextInput
-                  style={styles.input}
-                  defaultValue={Latitude}
-                  onChangeText={setLatitude}
-                />
-              </View>
-            ) : (
-              <Text style={styles.textt} >{Latitude}</Text>
-            )}
-         </View>    
-         
-         
-              <View style={styles.inputContainer}>
-          <Text style={styles.textt}> 
-          Longitude:</Text>
-            {isEditing ? (
-              <View style={styles.inputContainer}>
- <TextInput
-                  style={styles.input}
-                  defaultValue={Longitude}
-                  onChangeText={setLongitude}
-                />
-              </View>
-            ) : (
-              <Text style={styles.textt}>{Longitude}</Text>
-            )}
-         </View>
        
         </View>
       )}

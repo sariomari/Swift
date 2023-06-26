@@ -13,6 +13,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import * as Font from 'expo-font';
 import { Own_URL } from '../Variables';
+import { requestForegroundPermissionsAsync, watchPositionAsync } from 'expo-location';
+import * as Location from 'expo-location';
 
 const Orders = ({ navigation, route }) => {
   const { firstname, lastname, customerId, username, password, phone_number, email, latitude, longitude } = route.params;
@@ -45,10 +47,16 @@ const Orders = ({ navigation, route }) => {
       if (response.ok) {
         const data = await response.json();
         const processedOrders = await Promise.all(data.orders.map(async (order) => {
-          const storeName = await retrieveStoreName(order.store_id);
+          const storedata=await retrieveStoreName(order.store_id)
+          const storeName = storedata.storeName;
+          const storelat =storedata.latitude;
+          const storelon =storedata.longitude;
           return {
             ...order,
             storeName,
+            storelat,
+            storelon,
+
           };
         }));
         setOrdersList(processedOrders);
@@ -64,7 +72,7 @@ const Orders = ({ navigation, route }) => {
       const response = await fetch(`${Own_URL}/store/get_store_name?store_id=${storen}`);
       if (response.ok) {
         const data = await response.json();
-        return data.store_name;
+        return data;
       } else {
         console.log('Failed to retrieve store name:', response.status);
       }
@@ -125,6 +133,12 @@ const Orders = ({ navigation, route }) => {
     },
     itemText: {
       fontSize: 25,
+      fontWeight: 'bold',
+      flex: 1,
+      fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
+    },
+    itemTextnew: {
+      fontSize: 16,
       fontWeight: 'bold',
       flex: 1,
       fontFamily: fontLoaded ? 'FormalfB' : 'Arial',
@@ -219,7 +233,7 @@ const Orders = ({ navigation, route }) => {
       const [storeName, setStoreName] = useState('');
 
 
-      const handleReturn = (item) => {
+      const  handleReturn  = async(item) => {
         const orderTime = new Date(item.order_time).getTime();
         const currentTime = Date.now();
         const timeDifference = currentTime - orderTime;
@@ -230,11 +244,34 @@ const Orders = ({ navigation, route }) => {
          
           {
             text: 'Return',
-            onPress: () => {
+            onPress: async() => {
               Alert.alert('We are already working on it ', 'A currier is coming to take the order and to return it.', [{ text: 'OK' }]);
-              // Handle Return button press
-            },
+              const currentTime = new Date().toISOString();
+              const itemIds = item.items_ordered.map(item => item.item_id);
+              const newOrder = {
+                
+                customer_id: customerId,
+                destination_latitude: item.storelat,
+                destination_longitude: item.storelon,
+                items_ordered: itemIds,
+                store_id: item.store_id,
+                order_time: currentTime,
+              };
+
+              console.log(newOrder)
+                  const response = await fetch(`${Own_URL}/order`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newOrder),
+                  });
+
+
+            }
           },
+        
+          
           {
             text: 'Cancel',
             onPress: () => {
@@ -257,6 +294,10 @@ const Orders = ({ navigation, route }) => {
           <Text style={styles.itemText}>{"Store:"}</Text>
           <Text style={styles.itemText}>{item.storeName}</Text>
         </View>
+        <View style={styles.textContainer}>
+        <Text style={styles.itemText}>{"Date & Time:"}</Text>
+        <Text style={styles.itemTextnew}>{new Date(item.order_time).toLocaleString()}</Text>
+      </View>
         <TouchableOpacity style={styles.returnButton} onPress={() => handleReturn(item)}>
           <Text style={styles.returnButtonText}>Return Order</Text>
         </TouchableOpacity>

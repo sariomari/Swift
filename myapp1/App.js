@@ -20,7 +20,7 @@ import Loginpage from './screens/loginpage';
 import OrderDetails from './screens/OrderDetails';
 import { LogBox } from 'react-native';
 
-//LogBox.ignoreAllLogs(); // Ignore all log notifications
+LogBox.ignoreAllLogs(); // Ignore all log notifications
 const Stack = createNativeStackNavigator();
 const store = createStore(
   rootReducer,

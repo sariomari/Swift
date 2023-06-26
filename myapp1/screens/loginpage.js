@@ -127,7 +127,7 @@ const loginpage = ({ setSelectedTab }) => {
   });
   const handleLogin = async () => {
     try {
-      const response = await fetch(`${API_URL}/customer/login?username=${username}&password=${password}`
+      const response = await fetch(`${Own_URL}/customer/login?username=${username}&password=${password}`
       , {
         method: 'GET',
       });

@@ -313,8 +313,8 @@ def OrderApi(request, id=0):
         print(order_data)
         order_serializer = OrderSerializer(data=order_data)
         if order_serializer.is_valid():
-            order_serializer.save()
-            create_task_from_order(order_id=order_data['order_id'],
+            order_obj = order_serializer.save()
+            create_task_from_order(order_id=order_obj.order_id,
                                    store_id=order_data['store_id'],
                                    customer_id=order_data['customer_id'])
             return JsonResponse("Added Successfully", safe=False)
@@ -468,7 +468,9 @@ def get_store_name(request):
         store_id = request.GET.get('store_id')
         store = Store.objects.get(store_id=store_id)
         store_name = store.store_name
-        return JsonResponse({'store_name': store_name})
+        latitude = store.latitude
+        longitude = store.longitude
+        return JsonResponse({'store_name': store_name,'latitude':latitude,'longitude':longitude})
     except Store.DoesNotExist:
         return JsonResponse({'error': 'Store not found'})
     except Exception as e:
