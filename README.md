@@ -24,7 +24,7 @@ The backend and frontend are separate components which can be run simultaneously
 The last command will show a QR code in the terminal that you can scan and open in the Expo Go app in both iOS and Android.
 You can also open the app on your computer using an Android or iOS simulator (in Xcode).
 The easiest way would be to install the Expo app on your mobile and scan the QR code.
-## IMPORTANT NOTE:
+### IMPORTANT NOTE:
 The apps send the requests to the backend which should be running on localhost:8000, if that's not where the backend is running on your machine, please make sure the requests are being sent to the correct place.
 
 # Structure of The Project
