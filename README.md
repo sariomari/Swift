@@ -8,7 +8,7 @@ Ahmad Rayan , Sari Omari , Yousef Taweel , Tamer Damouni , Feras Baransi , Moham
 ## description
 A small description : Swift is a dual app system that reshapes the way you handle your clothes needs , Swift facilitates the effortless delivery of apparel from your favorite shops that are in your zone , the app lets you order clothes and get them in the same hour , Whether you're a fashionista seeking convenience or a driver looking to earn, Swift makes fashion accessible, efficient, and exciting. Experience fashion delivery, simplified.
 
-##Running instructions
+## Running instructions
 We used visual studio code for our program , we downloaded the app with all the necessary libraries and downloaded React Native, we used expo and expoGo to check the output of the code , we also downloaded Django to work on the backend part and the required libraries to connect between the frontend and the backend as well as getting the exact location of the customer and the time of the order ( our code is javascript for the frontend and Django for the backend).
 
 ## structure of the project
