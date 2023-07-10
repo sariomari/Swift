@@ -1,11 +1,36 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity,Alert } from 'react-native';
 
 
 export default function LoginScrn({ navigation: { navigate } }) {
+
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const Own_URL = 'http://172.20.10.2:8000';
+  const handleLogin = async () => {
+    try {
+      print("hey")
+      print(email,password)
+      const response = await fetch(`${Own_URL}/driver/login?driver_username=${username}&driver_password=${password}`
+      , {
+        method: 'GET',
+      });
+      if (response.ok) {
+      const data = await response.json();
+      const driver_id = data.driver_id; // Retrieve the customerId from the response
+      const driver_username=data.driver_username;
+      const driver_password=data.driver_password;
+      navigate("Drawer")
+    } else {
+      Alert.alert('Login Failed', 'Invalid username or password');
+    }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'An error occurred during login');
+    }
+  };
   const login = () => {
     if (email == "Sari" && password == "1") {
       navigate("Drawer")
@@ -19,9 +44,9 @@ export default function LoginScrn({ navigation: { navigate } }) {
       <View style={styles.inputView}>
         <TextInput
           style={styles.TextInput}
-          placeholder="Email"
+          placeholder="Username"
           placeholderTextColor="#003f5c"
-          onChangeText={(email) => setEmail(email)}
+          onChangeText={(username) => setUsername(username)}
         />
       </View>
       <View style={styles.inputView}>
@@ -36,7 +61,7 @@ export default function LoginScrn({ navigation: { navigate } }) {
       <TouchableOpacity>
         <Text style={styles.normalText}>Forgot Password?</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.loginBtn} onPress={login}>
+      <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
         <Text style={styles.loginText}>LOGIN</Text>
       </TouchableOpacity>
       <TouchableOpacity>

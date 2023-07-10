@@ -15,6 +15,7 @@ urlpatterns =[
     re_path(r'^cart$',views.CartApi),
     re_path(r'^cart/([0-9]+)$',views.CartApi),
     re_path(r'^customer/login$', views.login_view, name='login'),
+    re_path(r'^driver/login$', views.login_view_driver, name='login'),
     re_path(r'^order$', views.OrderApi),
     re_path(r'^order/([0-9]+)$', views.OrderApi),
     re_path(r'^order/current$', views.CurrentOrdersApi),

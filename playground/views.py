@@ -41,6 +41,27 @@ def login_view(request):
 
 
 @csrf_exempt
+def login_view_driver(request):
+    driver_username = request.GET.get('driver_username')
+    driver_password = request.GET.get('driver_password')
+    print(driver_username)
+    print(driver_password)
+    try:
+        user = Driver.objects.get(driver_username=driver_username)
+    except Customer.DoesNotExist:
+        return JsonResponse({'error': 'Invalid username or password'}, status=401)
+
+    if user.driver_password == driver_password:
+        request.session['driver_id'] = user.driver_id
+        request.session['driver_username'] = user.driver_username
+        request.session['driver_password'] = user.driver_password
+
+        return JsonResponse({'message': 'Login Successful', 'driver_id': user.driver_id,  'driver_username': user.driver_username, 'driver_password': user.driver_password})
+    else:
+        return JsonResponse({'error': 'Invalid username or password'}, status=401)
+
+
+@csrf_exempt
 def get_store_items(request):
     # Assuming the store ID is sent as a query parameter
     store_id = request.GET.get('store_id')
